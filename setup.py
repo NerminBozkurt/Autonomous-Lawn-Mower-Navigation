@@ -30,6 +30,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'run_mowing_path = mower_sim.run_mowing_path:main',
         ],
     },
 )
