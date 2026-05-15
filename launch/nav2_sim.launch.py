@@ -7,14 +7,25 @@ from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
+from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
 
     # ----- Paths -----
-    world_file = '/opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world'
+    # world_file = '/opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world'
+    world_file = os.path.join(
+        get_package_share_directory('mower_sim'),
+        'worlds',
+        'empty_field.world'
+    )
     xacro_file = '/opt/ros/humble/share/turtlebot3_description/urdf/turtlebot3_burger.urdf'
     sdf_file = '/opt/ros/humble/share/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf'
-    map_file = '/opt/ros/humble/share/nav2_bringup/maps/turtlebot3_world.yaml'
+    # map_file = '/opt/ros/humble/share/nav2_bringup/maps/turtlebot3_world.yaml'
+    map_file = os.path.join(
+        get_package_share_directory('mower_sim'),
+        'maps',
+        'empty_map.yaml'
+    )
     nav2_params_file = '/opt/ros/humble/share/nav2_bringup/params/nav2_params.yaml'
     rviz_config_file = '/opt/ros/humble/share/nav2_bringup/rviz/nav2_default_view.rviz'
 
