@@ -76,15 +76,26 @@ class MowingPathClient(Node):
 def main():
     rclpy.init()
 
-    # ----- Define mowing-style waypoints -----
-    # Zigzag pattern: 3 rows in clear area to the right of obstacles
-    # Start at (3.0, 0.0), 0.5m row spacing
+    # 5-row mowing pattern, 5m row length, 1m row spacing
     waypoints = [
-        make_pose(5.0,  0.0, yaw=0.0),        # row 1: go right
-        make_pose(5.0,  0.5, yaw=1.5708),     # turn up (pi/2)
-        make_pose(3.0,  0.5, yaw=3.1416),     # row 2: go left (pi)
-        make_pose(3.0,  1.0, yaw=1.5708),     # turn up
-        make_pose(5.0,  1.0, yaw=0.0),        # row 3: go right
+        # Row 1: go right
+        make_pose(5.0, 0.0, yaw=0.0),
+        # Turn to row 2
+        make_pose(5.0, 1.0, yaw=1.5708),     # π/2
+        # Row 2: go left
+        make_pose(0.0, 1.0, yaw=3.1416),     # π
+        # Turn to row 3
+        make_pose(0.0, 2.0, yaw=1.5708),
+        # Row 3: go right
+        make_pose(5.0, 2.0, yaw=0.0),
+        # Turn to row 4
+        make_pose(5.0, 3.0, yaw=1.5708),
+        # Row 4: go left
+        make_pose(0.0, 3.0, yaw=3.1416),
+        # Turn to row 5
+        make_pose(0.0, 4.0, yaw=1.5708),
+        # Row 5: go right (final)
+        make_pose(5.0, 4.0, yaw=0.0),
     ]
 
     node = MowingPathClient()

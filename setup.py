@@ -17,6 +17,7 @@ setup(
     	(os.path.join('share', package_name, 'urdf'), glob('urdf/*')),
         (os.path.join('share', package_name, 'worlds'), glob('worlds/*')),
         (os.path.join('share', package_name, 'maps'), glob('maps/*')),
+        (os.path.join('share', package_name, 'rviz'), glob('rviz/*')),
 
     ],
     install_requires=['setuptools'],
@@ -33,6 +34,7 @@ setup(
     entry_points={
         'console_scripts': [
             'run_mowing_path = mower_sim.run_mowing_path:main',
+            'robot_trail_publisher = mower_sim.robot_trail_publisher:main',
         ],
     },
 )

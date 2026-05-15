@@ -27,7 +27,14 @@ def generate_launch_description():
         'empty_map.yaml'
     )
     nav2_params_file = '/opt/ros/humble/share/nav2_bringup/params/nav2_params.yaml'
-    rviz_config_file = '/opt/ros/humble/share/nav2_bringup/rviz/nav2_default_view.rviz'
+    #rviz_config_file = '/opt/ros/humble/share/nav2_bringup/rviz/nav2_default_view.rviz'
+    
+    rviz_config_file = os.path.join(
+        get_package_share_directory('mower_sim'),
+        'rviz',
+        'mower_view.rviz'
+    )
+
 
     nav2_bringup_launch = '/opt/ros/humble/share/nav2_bringup/launch/bringup_launch.py'
 
