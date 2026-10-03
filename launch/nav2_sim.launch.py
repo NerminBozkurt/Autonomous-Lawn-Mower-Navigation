@@ -24,6 +24,7 @@ def launch_setup(context, *args, **kwargs):
     sdf_file = '/opt/ros/humble/share/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf'
 
     nav2_params_file = os.path.join(pkg_share, 'config', f'nav2_{controller}_fair.yaml')
+    map_yaml_file = os.path.join(pkg_share, 'maps', 'empty_map.yaml')
     rviz_config_file = os.path.join(pkg_share, 'rviz', 'mower_view.rviz')
     nav2_bringup_launch = '/opt/ros/humble/share/nav2_bringup/launch/navigation_launch.py'
 
@@ -65,6 +66,27 @@ def launch_setup(context, *args, **kwargs):
         parameters=[{'use_sim_time': True}],
     )
 
+    # navigation_launch.py brings up planning/control only - no map_server and no
+    # AMCL. Localization comes from ground_truth_tf (map -> odom), but the costmap
+    # static layers still need a /map publisher, so run map_server ourselves.
+    map_server = Node(
+        package='nav2_map_server',
+        executable='map_server',
+        name='map_server',
+        output='screen',
+        parameters=[{'use_sim_time': True, 'yaml_filename': map_yaml_file}],
+    )
+
+    map_server_lifecycle = Node(
+        package='nav2_lifecycle_manager',
+        executable='lifecycle_manager',
+        name='lifecycle_manager_map_server',
+        output='screen',
+        parameters=[{'use_sim_time': True,
+                     'autostart': True,
+                     'node_names': ['map_server']}],
+    )
+
     nav2 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(nav2_bringup_launch),
         launch_arguments={
@@ -94,7 +116,8 @@ def launch_setup(context, *args, **kwargs):
         robot_state_publisher,
         spawn_entity,
         ground_truth_tf,
-        TimerAction(period=20.0, actions=[nav2, rviz]),
+        TimerAction(period=20.0, actions=[map_server, map_server_lifecycle,
+                                          nav2, rviz]),
     ]
 
 
