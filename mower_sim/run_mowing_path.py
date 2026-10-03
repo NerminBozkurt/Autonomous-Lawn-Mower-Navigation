@@ -1,106 +1,119 @@
 #!/usr/bin/env python3
 """
-Send a mowing-style path to Nav2 via the NavigateThroughPoses action.
-Waypoints define a small 3-row zigzag pattern in a clear area of turtlebot3_world.
+Send a Fields2Cover-style coverage path straight to Nav2's controller.
+
+The path goes to controller_server's FollowPath action, bypassing the global
+planner and the BT navigator, so every controller (RPP, MPPI, DWB) tracks the
+identical reference and tracking error is comparable across runs. The cost:
+nothing replans around obstacles, which is fine for the empty test field.
+
+The reference is also republished on /coverage_path for RViz.
 """
 
-import rclpy
-from rclpy.node import Node
-from rclpy.action import ActionClient
+import math
+
+from action_msgs.msg import GoalStatus
 from geometry_msgs.msg import PoseStamped
-from nav2_msgs.action import NavigateThroughPoses
-from builtin_interfaces.msg import Time
+from mower_sim.coverage_path import boustrophedon_path
+from nav2_msgs.action import FollowPath
+from nav_msgs.msg import Path
+import rclpy
+from rclpy.action import ActionClient
+from rclpy.node import Node
 
 
-def make_pose(x, y, yaw=0.0):
-    """Create a PoseStamped at (x, y) with given yaw in radians."""
-    pose = PoseStamped()
-    pose.header.frame_id = 'map'
-    pose.pose.position.x = x
-    pose.pose.position.y = y
-    pose.pose.position.z = 0.0
-    # Quaternion from yaw (Z-axis rotation only)
-    import math
-    pose.pose.orientation.z = math.sin(yaw / 2.0)
-    pose.pose.orientation.w = math.cos(yaw / 2.0)
-    return pose
+def to_path_msg(poses, frame_id):
+    path = Path()
+    path.header.frame_id = frame_id
+    # Zero stamp = "latest available transform" for tf2 lookups.
+    for x, y, yaw in poses:
+        pose = PoseStamped()
+        pose.header.frame_id = frame_id
+        pose.pose.position.x = x
+        pose.pose.position.y = y
+        pose.pose.orientation.z = math.sin(yaw / 2.0)
+        pose.pose.orientation.w = math.cos(yaw / 2.0)
+        path.poses.append(pose)
+    return path
 
 
 class MowingPathClient(Node):
+
     def __init__(self):
         super().__init__('mowing_path_client')
-        self._action_client = ActionClient(
-            self, NavigateThroughPoses, 'navigate_through_poses'
-        )
 
-    def send_path(self, poses):
-        self.get_logger().info('Waiting for NavigateThroughPoses action server...')
+        # swath_spacing matches cutting_width in urdf/mower.urdf.xacro, so
+        # adjacent passes touch and no uncut strip is left between them.
+        self.declare_parameter('num_swaths', 3)
+        self.declare_parameter('swath_length', 5.0)
+        self.declare_parameter('swath_spacing', 0.75)
+        self.declare_parameter('turn_radius', 0.0)  # 0 -> swath_spacing / 2
+        self.declare_parameter('step', 0.05)
+        self.declare_parameter('frame_id', 'map')
+        self.declare_parameter('controller_id', 'FollowPath')
+        self.declare_parameter('goal_checker_id', 'general_goal_checker')
+
+        p = self.get_parameter
+        turn_radius = p('turn_radius').value
+        poses = boustrophedon_path(
+            num_swaths=p('num_swaths').value,
+            swath_length=p('swath_length').value,
+            swath_spacing=p('swath_spacing').value,
+            turn_radius=turn_radius if turn_radius > 0.0 else None,
+            step=p('step').value,
+        )
+        self.path = to_path_msg(poses, p('frame_id').value)
+
+        self.path_pub = self.create_publisher(Path, '/coverage_path', 10)
+        self.create_timer(1.0, lambda: self.path_pub.publish(self.path))
+
+        self._action_client = ActionClient(self, FollowPath, 'follow_path')
+
+    def send_path(self):
+        self.get_logger().info('Waiting for FollowPath action server...')
         self._action_client.wait_for_server()
 
-        goal_msg = NavigateThroughPoses.Goal()
-        # Stamp all poses with current time
-        now = self.get_clock().now().to_msg()
-        for pose in poses:
-            pose.header.stamp = now
-        goal_msg.poses = poses
+        goal = FollowPath.Goal()
+        goal.path = self.path
+        goal.controller_id = self.get_parameter('controller_id').value
+        goal.goal_checker_id = self.get_parameter('goal_checker_id').value
 
-        self.get_logger().info(f'Sending mowing path with {len(poses)} waypoints')
-        send_goal_future = self._action_client.send_goal_async(
-            goal_msg, feedback_callback=self.feedback_callback
-        )
-        send_goal_future.add_done_callback(self.goal_response_callback)
+        self.get_logger().info(
+            f'Sending coverage path: {len(self.path.poses)} poses')
+        future = self._action_client.send_goal_async(
+            goal, feedback_callback=self.feedback_callback)
+        future.add_done_callback(self.goal_response_callback)
 
     def goal_response_callback(self, future):
         goal_handle = future.result()
         if not goal_handle.accepted:
-            self.get_logger().error('Goal rejected by server')
+            self.get_logger().error('FollowPath goal rejected')
             rclpy.shutdown()
             return
         self.get_logger().info('Goal accepted, robot is moving')
-        get_result_future = goal_handle.get_result_async()
-        get_result_future.add_done_callback(self.get_result_callback)
+        goal_handle.get_result_async().add_done_callback(
+            self.result_callback)
 
     def feedback_callback(self, feedback_msg):
-        feedback = feedback_msg.feedback
+        fb = feedback_msg.feedback
         self.get_logger().info(
-            f'Waypoints remaining: {feedback.number_of_poses_remaining}, '
-            f'Distance: {feedback.distance_remaining:.2f} m'
-        )
+            f'Distance to goal: {fb.distance_to_goal:.2f} m, '
+            f'speed: {fb.speed:.2f} m/s',
+            throttle_duration_sec=1.0)
 
-    def get_result_callback(self, future):
-        result = future.result().result
-        self.get_logger().info('Mowing path completed')
+    def result_callback(self, future):
+        status = future.result().status
+        if status == GoalStatus.STATUS_SUCCEEDED:
+            self.get_logger().info('Coverage path completed')
+        else:
+            self.get_logger().error(f'FollowPath ended with status {status}')
         rclpy.shutdown()
 
 
 def main():
     rclpy.init()
-
-    # 5-row mowing pattern, 5m row length, 1m row spacing
-    waypoints = [
-        # Row 1: go right
-        make_pose(5.0, 0.0, yaw=0.0),
-        # Turn to row 2
-        make_pose(5.0, 1.0, yaw=1.5708),     # π/2
-        # Row 2: go left
-        make_pose(0.0, 1.0, yaw=3.1416),     # π
-        # Turn to row 3
-        make_pose(0.0, 2.0, yaw=1.5708),
-        # Row 3: go right
-        make_pose(5.0, 2.0, yaw=0.0),
-        # Turn to row 4
-        make_pose(5.0, 3.0, yaw=1.5708),
-        # Row 4: go left
-        make_pose(0.0, 3.0, yaw=3.1416),
-        # Turn to row 5
-        make_pose(0.0, 4.0, yaw=1.5708),
-        # Row 5: go right (final)
-        make_pose(5.0, 4.0, yaw=0.0),
-    ]
-
     node = MowingPathClient()
-    node.send_path(waypoints)
-
+    node.send_path()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
