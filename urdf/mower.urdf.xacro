@@ -49,7 +49,6 @@
 
   <!-- Cutting width drives the coverage planner's row spacing. -->
   <xacro:property name="cutting_width"    value="0.75"/>
-  <xacro:property name="cutting_diameter" value="0.70"/>
 
   <!-- 0.30 m forward of the body's own center (not base_link's origin,
        which is now at the rear axle). -->
@@ -123,26 +122,6 @@
     <xacro:box_inertia m="${body_mass}" x="${body_length}"
                        y="${body_width}" z="${body_height}"/>
   </link>
-
-  <!-- Cutting deck: visual only. Giving it collision geometry would make it
-       scrape the ground plane and fight the physics solver. -->
-  <link name="cutting_deck">
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <cylinder radius="${cutting_diameter/2}" length="0.04"/>
-      </geometry>
-      <material name="deck_grey">
-        <color rgba="0.35 0.35 0.35 1.0"/>
-      </material>
-    </visual>
-  </link>
-
-  <joint name="cutting_deck_joint" type="fixed">
-    <parent link="base_link"/>
-    <child  link="cutting_deck"/>
-    <origin xyz="${body_xoff} 0 ${-wheel_radius+0.06}" rpy="0 0 0"/>
-  </joint>
 
   <!-- ==================== drive wheels ==================== -->
   <xacro:macro name="drive_wheel" params="prefix reflect">
@@ -255,10 +234,6 @@
   <!-- ==================== gazebo ==================== -->
   <gazebo reference="base_link">
     <material>Gazebo/Green</material>
-  </gazebo>
-
-  <gazebo reference="cutting_deck">
-    <material>Gazebo/Grey</material>
   </gazebo>
 
   <gazebo reference="base_scan">
