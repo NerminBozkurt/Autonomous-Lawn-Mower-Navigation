@@ -7,36 +7,53 @@
   than shrinking those parameters to fit a 0.21 m TurtleBot3 Burger, the robot
   is built to match them, and the turtlebot3_gazebo dependency disappears.
 
-  Geometry note: the drive wheels sit on the lateral axis through base_link,
-  with one caster fore and one aft. The robot therefore pivots about base_link,
-  which is exactly what Nav2 assumes when it rotates the footprint polygon for
-  collision checking. A rear-axle drive layout would make the symmetric
-  footprint in config/ wrong.
+  Geometry note: modelled after Vires Garden's robotic mower (viresgarden.com),
+  which drives from two large rear wheels with two small caster wheels at the
+  front corners - not a centered axle. The drive wheels stay at the base_link
+  origin (x=0), but the chassis is shifted forward so that origin sits at the
+  REAR axle rather than the geometric center. The robot still pivots about
+  base_link, which is what Nav2 assumes when it rotates the footprint for
+  collision checking - the footprint polygon in config/ is asymmetric in x to
+  match, rather than the robot being forced into a symmetric footprint.
 -->
 <robot name="mower" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!-- ==================== parameters ==================== -->
-  <!-- Chassis is 0.10 m smaller than the Nav2 footprint in each direction,
-       leaving a 0.05 m safety margin per side. -->
+  <!-- Nav2's footprint polygon (config/) keeps a 0.05 m safety margin
+       outside the robot's true physical extent on every side: the chassis
+       box on three sides, and the drive wheels' own radius at the rear,
+       since the wheels poke out past the chassis there (see rear_overhang
+       below). The footprint is therefore asymmetric in x, not just this
+       box shrunk uniformly. -->
   <xacro:property name="body_length"  value="1.00"/>
   <xacro:property name="body_width"   value="0.80"/>
   <xacro:property name="body_height"  value="0.30"/>
   <xacro:property name="body_mass"    value="55.0"/>
+
+  <!-- How far the chassis extends behind the drive axle (motor/bumper
+       housing). The rest of body_length extends forward of it. -->
+  <xacro:property name="rear_overhang" value="0.10"/>
+  <xacro:property name="body_xoff"     value="${body_length/2 - rear_overhang}"/>
 
   <xacro:property name="wheel_radius"     value="0.15"/>
   <xacro:property name="wheel_width"      value="0.08"/>
   <xacro:property name="wheel_separation" value="0.70"/>
   <xacro:property name="wheel_mass"       value="4.0"/>
 
+  <!-- Front caster wheels sit at the two front corners, inset from the
+       chassis edges, not on the centerline. -->
   <xacro:property name="caster_radius" value="0.075"/>
-  <xacro:property name="caster_xoff"   value="0.38"/>
+  <xacro:property name="caster_xoff"   value="${body_length - rear_overhang - 0.15}"/>
+  <xacro:property name="caster_yoff"   value="${body_width/2 - 0.10}"/>
   <xacro:property name="caster_mass"   value="1.0"/>
 
   <!-- Cutting width drives the coverage planner's row spacing. -->
   <xacro:property name="cutting_width"    value="0.75"/>
   <xacro:property name="cutting_diameter" value="0.70"/>
 
-  <xacro:property name="lidar_xoff"   value="0.30"/>
+  <!-- 0.30 m forward of the body's own center (not base_link's origin,
+       which is now at the rear axle). -->
+  <xacro:property name="lidar_xoff"   value="${body_xoff + 0.30}"/>
   <xacro:property name="lidar_height" value="0.40"/>
   <xacro:property name="lidar_radius" value="0.05"/>
   <xacro:property name="lidar_mass"   value="0.5"/>
@@ -84,10 +101,12 @@
     <origin xyz="0 0 ${wheel_radius}" rpy="0 0 0"/>
   </joint>
 
-  <!-- base_link sits at the drive axle, 0.15 m above ground. -->
+  <!-- base_link sits at the rear drive axle, 0.15 m above ground. The
+       chassis box is offset forward (+x) of it by body_xoff so the robot
+       body projects out ahead of the drive wheels, as on the real mower. -->
   <link name="base_link">
     <visual>
-      <origin xyz="0 0 ${body_height/2}" rpy="0 0 0"/>
+      <origin xyz="${body_xoff} 0 ${body_height/2}" rpy="0 0 0"/>
       <geometry>
         <box size="${body_length} ${body_width} ${body_height}"/>
       </geometry>
@@ -96,7 +115,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 ${body_height/2}" rpy="0 0 0"/>
+      <origin xyz="${body_xoff} 0 ${body_height/2}" rpy="0 0 0"/>
       <geometry>
         <box size="${body_length} ${body_width} ${body_height}"/>
       </geometry>
@@ -122,7 +141,7 @@
   <joint name="cutting_deck_joint" type="fixed">
     <parent link="base_link"/>
     <child  link="cutting_deck"/>
-    <origin xyz="0 0 ${-wheel_radius+0.06}" rpy="0 0 0"/>
+    <origin xyz="${body_xoff} 0 ${-wheel_radius+0.06}" rpy="0 0 0"/>
   </joint>
 
   <!-- ==================== drive wheels ==================== -->
@@ -171,8 +190,10 @@
   <!-- ==================== casters ==================== -->
   <!-- Modelled as low-friction spheres rather than steered wheels: a real
        caster's swivel lag is not what this thesis measures, and free spheres
-       keep the solver well behaved. -->
-  <xacro:macro name="caster" params="prefix xoff">
+       keep the solver well behaved. Two front-corner casters only - the real
+       mower has no rear caster, since the drive wheels are the rear of the
+       robot. -->
+  <xacro:macro name="caster" params="prefix xoff yoff">
     <link name="${prefix}_caster">
       <visual>
         <geometry><sphere radius="${caster_radius}"/></geometry>
@@ -189,7 +210,7 @@
     <joint name="${prefix}_caster_joint" type="fixed">
       <parent link="base_link"/>
       <child  link="${prefix}_caster"/>
-      <origin xyz="${xoff} 0 ${-(wheel_radius-caster_radius)}" rpy="0 0 0"/>
+      <origin xyz="${xoff} ${yoff} ${-(wheel_radius-caster_radius)}" rpy="0 0 0"/>
     </joint>
 
     <gazebo reference="${prefix}_caster">
@@ -201,8 +222,8 @@
     </gazebo>
   </xacro:macro>
 
-  <xacro:caster prefix="front" xoff="${caster_xoff}"/>
-  <xacro:caster prefix="rear"  xoff="${-caster_xoff}"/>
+  <xacro:caster prefix="front_left"  xoff="${caster_xoff}" yoff="${caster_yoff}"/>
+  <xacro:caster prefix="front_right" xoff="${caster_xoff}" yoff="${-caster_yoff}"/>
 
   <!-- ==================== lidar ==================== -->
   <!-- Mounted 0.55 m above ground, 0.10 m clear of the chassis top, so the

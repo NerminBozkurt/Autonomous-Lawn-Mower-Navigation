@@ -140,7 +140,7 @@ local_costmap:
       width: 5
       height: 5
       resolution: 0.06
-      footprint: '[ [0.55, 0.45], [0.55, -0.45], [-0.55, -0.45], [-0.55, 0.45] ]'
+      footprint: '[ [0.95, 0.45], [0.95, -0.45], [-0.20, -0.45], [-0.20, 0.45] ]'
       plugins:
       - static_layer
       - voxel_layer
@@ -181,7 +181,7 @@ global_costmap:
       global_frame: map
       robot_base_frame: base_link
       use_sim_time: true
-      footprint: '[ [0.55, 0.45], [0.55, -0.45], [-0.55, -0.45], [-0.55, 0.45] ]'
+      footprint: '[ [0.95, 0.45], [0.95, -0.45], [-0.20, -0.45], [-0.20, 0.45] ]'
       resolution: 0.06
       track_unknown_space: true
       plugins:
