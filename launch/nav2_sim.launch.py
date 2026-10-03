@@ -20,8 +20,9 @@ def launch_setup(context, *args, **kwargs):
     pkg_share = get_package_share_directory('mower_sim')
 
     world_file = os.path.join(pkg_share, 'worlds', 'empty_field.world')
-    xacro_file = '/opt/ros/humble/share/turtlebot3_description/urdf/turtlebot3_burger.urdf'
-    sdf_file = '/opt/ros/humble/share/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf'
+    xacro_file = os.path.join(pkg_share, 'urdf', 'mower.urdf.xacro')
+
+    robot_name = 'mower'
 
     nav2_params_file = os.path.join(pkg_share, 'config', f'nav2_{controller}_fair.yaml')
     map_yaml_file = os.path.join(pkg_share, 'maps', 'empty_map.yaml')
@@ -49,21 +50,27 @@ def launch_setup(context, *args, **kwargs):
         parameters=[{'robot_description': robot_description, 'use_sim_time': True}],
     )
 
+    # Spawn from /robot_description rather than a model file: the mower is
+    # described by our own xacro, which carries its Gazebo plugins with it.
     spawn_entity = Node(
         package='gazebo_ros',
         executable='spawn_entity.py',
-        arguments=['-entity', 'turtlebot3_burger',
-                   '-file', sdf_file,
+        arguments=['-entity', robot_name,
+                   '-topic', 'robot_description',
                    '-x', '0.0', '-y', '0.0', '-z', '0.05',
                    '-timeout', '120.0'],
         output='screen',
     )
 
+    # Gazebo reports the model pose in the root link's frame, which is
+    # base_footprint, so the correction must be composed against that frame.
     ground_truth_tf = Node(
         package='mower_sim',
         executable='ground_truth_tf_publisher',
         output='screen',
-        parameters=[{'use_sim_time': True}],
+        parameters=[{'use_sim_time': True,
+                     'robot_name': robot_name,
+                     'base_frame': 'base_footprint'}],
     )
 
     # navigation_launch.py brings up planning/control only - no map_server and no
@@ -108,7 +115,6 @@ def launch_setup(context, *args, **kwargs):
         SetEnvironmentVariable(
             name='GAZEBO_MODEL_PATH',
             value=os.environ.get('GAZEBO_MODEL_PATH', '') +
-                  ':/opt/ros/humble/share/turtlebot3_gazebo/models' +
                   ':/opt/ros/humble/share'
         ),
         gzserver,
