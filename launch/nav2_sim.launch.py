@@ -20,10 +20,12 @@ def launch_setup(context, *args, **kwargs):
     pkg_share = get_package_share_directory('mower_sim')
 
     world_file = os.path.join(pkg_share, 'worlds', 'empty_field.world')
-    xacro_file = '/opt/ros/humble/share/turtlebot3_description/urdf/turtlebot3_burger.urdf'
-    sdf_file = '/opt/ros/humble/share/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf'
+    xacro_file = os.path.join(pkg_share, 'urdf', 'mower.urdf.xacro')
+
+    robot_name = 'mower'
 
     nav2_params_file = os.path.join(pkg_share, 'config', f'nav2_{controller}_fair.yaml')
+    map_yaml_file = os.path.join(pkg_share, 'maps', 'empty_map.yaml')
     rviz_config_file = os.path.join(pkg_share, 'rviz', 'mower_view.rviz')
     nav2_bringup_launch = '/opt/ros/humble/share/nav2_bringup/launch/navigation_launch.py'
 
@@ -48,21 +50,48 @@ def launch_setup(context, *args, **kwargs):
         parameters=[{'robot_description': robot_description, 'use_sim_time': True}],
     )
 
+    # Spawn from /robot_description rather than a model file: the mower is
+    # described by our own xacro, which carries its Gazebo plugins with it.
     spawn_entity = Node(
         package='gazebo_ros',
         executable='spawn_entity.py',
-        arguments=['-entity', 'turtlebot3_burger',
-                   '-file', sdf_file,
+        arguments=['-entity', robot_name,
+                   '-topic', 'robot_description',
                    '-x', '0.0', '-y', '0.0', '-z', '0.05',
                    '-timeout', '120.0'],
         output='screen',
     )
 
+    # Gazebo reports the model pose in the root link's frame, which is
+    # base_footprint, so the correction must be composed against that frame.
     ground_truth_tf = Node(
         package='mower_sim',
         executable='ground_truth_tf_publisher',
         output='screen',
-        parameters=[{'use_sim_time': True}],
+        parameters=[{'use_sim_time': True,
+                     'robot_name': robot_name,
+                     'base_frame': 'base_footprint'}],
+    )
+
+    # navigation_launch.py brings up planning/control only - no map_server and no
+    # AMCL. Localization comes from ground_truth_tf (map -> odom), but the costmap
+    # static layers still need a /map publisher, so run map_server ourselves.
+    map_server = Node(
+        package='nav2_map_server',
+        executable='map_server',
+        name='map_server',
+        output='screen',
+        parameters=[{'use_sim_time': True, 'yaml_filename': map_yaml_file}],
+    )
+
+    map_server_lifecycle = Node(
+        package='nav2_lifecycle_manager',
+        executable='lifecycle_manager',
+        name='lifecycle_manager_map_server',
+        output='screen',
+        parameters=[{'use_sim_time': True,
+                     'autostart': True,
+                     'node_names': ['map_server']}],
     )
 
     nav2 = IncludeLaunchDescription(
@@ -86,7 +115,6 @@ def launch_setup(context, *args, **kwargs):
         SetEnvironmentVariable(
             name='GAZEBO_MODEL_PATH',
             value=os.environ.get('GAZEBO_MODEL_PATH', '') +
-                  ':/opt/ros/humble/share/turtlebot3_gazebo/models' +
                   ':/opt/ros/humble/share'
         ),
         gzserver,
@@ -94,7 +122,8 @@ def launch_setup(context, *args, **kwargs):
         robot_state_publisher,
         spawn_entity,
         ground_truth_tf,
-        TimerAction(period=20.0, actions=[nav2, rviz]),
+        TimerAction(period=20.0, actions=[map_server, map_server_lifecycle,
+                                          nav2, rviz]),
     ]
 
 
