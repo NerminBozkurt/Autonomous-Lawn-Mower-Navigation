@@ -52,6 +52,12 @@ class MowingPathClient(Node):
         self.declare_parameter('frame_id', 'map')
         self.declare_parameter('controller_id', 'FollowPath')
         self.declare_parameter('goal_checker_id', 'general_goal_checker')
+        # controller_server's action server is up a few seconds before Nav2
+        # activates it, and a goal sent in that gap is rejected; retry.
+        self.declare_parameter('goal_retries', 30)
+        self.declare_parameter('goal_retry_period', 2.0)
+        self._attempts = 0
+        self._retry_timer = None
 
         p = self.get_parameter
         turn_radius = p('turn_radius').value
@@ -72,6 +78,13 @@ class MowingPathClient(Node):
     def send_path(self):
         self.get_logger().info('Waiting for FollowPath action server...')
         self._action_client.wait_for_server()
+        self._send_goal()
+
+    def _send_goal(self):
+        if self._retry_timer is not None:
+            self.destroy_timer(self._retry_timer)
+            self._retry_timer = None
+        self._attempts += 1
 
         goal = FollowPath.Goal()
         goal.path = self.path
@@ -87,6 +100,13 @@ class MowingPathClient(Node):
     def goal_response_callback(self, future):
         goal_handle = future.result()
         if not goal_handle.accepted:
+            if self._attempts <= self.get_parameter('goal_retries').value:
+                period = self.get_parameter('goal_retry_period').value
+                self.get_logger().warn(
+                    f'FollowPath goal rejected, Nav2 probably not active yet; '
+                    f'retrying in {period:.0f} s')
+                self._retry_timer = self.create_timer(period, self._send_goal)
+                return
             self.get_logger().error('FollowPath goal rejected')
             rclpy.shutdown()
             return
