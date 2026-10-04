@@ -161,7 +161,7 @@ Two causes, both tied to the tight 0.375 m U-turn radius:
   already on the next swath before the robot reached the turn, so pure
   pursuit cut the corner. A long lookahead also means a low corrective gain,
   hence the slow recovery after the turn.
-- **Yaw-rate saturation.** The velocity_smoother caps the yaw rate at
+- **Yaw-rate saturation.** The veocity_smoother caps the yaw rate at
   1.0 rad/s. Following a 0.375 m radius at 1 rad/s needs a speed of at most
   0.375 m/s, but with `regulated_linear_scaling_min_radius: 0.8` RPP only
   slowed to about 1.0 × 0.375 / 0.8 ≈ 0.47 m/s. The smoother then clipped the
@@ -224,14 +224,86 @@ Lookahead given as min–max in metres.
 
 ---
 
+## 2026-10-04 — DWB: reversing before U-turns (in progress)
+
+**Config:** `config/nav2_dwb_fair.yaml`
+
+**Status: unresolved.** The committed config (variant W4 below) completes
+the path in only about half of the runs. Tuning continues; this entry
+records what has been established so far.
+
+### Symptom
+
+DWB tracked the first swath almost perfectly, then about 1 m before the
+first U-turn it started reversing and rocked back and forth between
+x ≈ 3.3 and 3.5 m without ever turning, until the progress checker aborted.
+
+### Diagnosis so far
+
+Verified against the Humble source and the critic scores DWB publishes on
+`/evaluation` (`debug_trajectory_details: true`):
+
+- **The local goal folds back behind the robot.** `transformGlobalPlan`
+  starts the local plan at the first pose within `prune_distance` of the
+  robot (i.e. behind it) and ends it at the first pose more than
+  `forward_prune_distance` (2.0 m, Euclidean) from the robot. GoalDist and
+  GoalAlign use the end of that plan as their goal. Once the whole U-turn is
+  inside the 2 m circle, the end lands on the next swath, behind the robot.
+  At the stall the best-scored trajectory was reversing (vx = −0.40, total
+  11.07, almost all of it GoalDist and GoalAlign) against 11.43 for the best
+  forward-and-turning one. The Oscillation critic then blocked direction
+  changes, so the robot rocked in place.
+- **`prune_distance` must stay below `forward_prune_distance`.** Otherwise
+  the plan's start pose is already beyond the end threshold and the plan
+  comes out empty ("Resulting plan has 0 poses").
+- **A short window brings a random freeze.** With the window below the
+  0.75 m swath spacing the plan can no longer fold, but runs randomly
+  freeze on the path. Scores captured during a freeze show standing still
+  and moving forward tie exactly (9.36 vs 9.36: GoalDist gained exactly what
+  GoalAlign lost), and DWB keeps the first-evaluated candidate, standing
+  still. A likely but unconfirmed cause: with the goal this close,
+  GoalAlign's forward point overshoots it.
+- **GoalDist is DWB's only progress term.** Removing GoalDist and GoalAlign
+  leaves the robot standing still at the start.
+
+### Variants tried
+
+Failures are random, so success rates need several runs per variant.
+
+| Variant | prune / forward_prune [m] | sim_time [s] | Other | Succeeded |
+|---|---|---:|---|---:|
+| Baseline | 2.0 / 2.0 (defaults) | 1.2 | | 0/1 |
+| W1 | 2.0 / 2.0 | 1.2 | no GoalDist, GoalAlign | 0/1 |
+| W2 | 2.0 / 0.7 | 1.2 | | 0/1 (empty plan) |
+| W3 | 0.4 / 0.7 | 1.2 | | 1/1, capped at ~0.55 m/s |
+| W4 (committed) | 0.4 / 0.7 | 0.7 | | 3/6 |
+| W5 | 0.3 / 0.6 | 0.6 | | 4/6 |
+| W6 | 0.3 / 0.6 | 0.6 | Nav2 default critic scales | 0/3 |
+| W7 | 0.35 / 0.65 | 0.4 | | 0/3 |
+
+W3 was speed-capped because a trajectory longer than the 0.7 m window
+overshoots its goal, so `sim_time × max_vel_x` should not exceed
+`forward_prune_distance`. When they succeed, W4 and W5 track well: about
+23 s, swath CTE RMS 1.5–2 cm, coverage about 98 %.
+
+### Next steps
+
+- Remove the Oscillation and/or GoalAlign critics while keeping GoalDist,
+  PathDist and PathAlign.
+- Try `min_vel_x: 0.0` (no reversing).
+- If no variant is reliable over at least six runs, document the result:
+  Humble DWB's goal-based critics conflict with folded coverage paths.
+
+---
+
 ## Open notes
 
 - **Benchmark table is stale.** `results/benchmark/summary_table.md` predates
   the MPPI and RPP tuning (MPPI shows as aborted at 8.2 s). Re-run the 3×3
   benchmark before quoting numbers.
-- **Fairness.** MPPI and RPP have now been tuned; DWB is still at its initial
-  settings. Either state this in the thesis or give DWB an equivalent tuning
-  pass.
+- **Fairness.** MPPI and RPP have now been tuned; DWB tuning is in progress
+  and not yet reliable (see above). Either state this in the thesis or
+  finish an equivalent tuning pass for DWB.
 - **Shared velocity_smoother limits.** The 1.0 rad/s yaw-rate cap and
   1.0 rad/s² yaw-acceleration limit bound every controller in the tight
   U-turns, and cause most of RPP's remaining turn-exit overshoot. If they are
