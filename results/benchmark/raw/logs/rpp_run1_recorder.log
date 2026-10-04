@@ -1,0 +1,3 @@
+[INFO] [1791117287.916328778] [metrics_recorder]: Metrics recorder "rpp_run1" waiting for a FollowPath goal; output -> /home/user/Autonomous-Lawn-Mower-Navigation/results/benchmark/raw
+[INFO] [1791117314.714102105] [metrics_recorder]: FollowPath goal executing, recording
+[INFO] [1791117334.477022177] [metrics_recorder]: Run succeeded in 18.8 s: CTE RMS swath 0.126 m, turn 0.212 m, coverage 91.2 %

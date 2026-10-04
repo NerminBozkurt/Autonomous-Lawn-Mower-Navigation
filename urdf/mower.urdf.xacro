@@ -59,6 +59,11 @@
 
   <xacro:property name="PI" value="3.14159265359"/>
 
+  <!-- use_lidar:=false keeps the scanner link but drops the simulated ray
+       sensor. Path following on the empty field does not need it, and some
+       Gazebo builds (e.g. RoboStack's) crash loading the ROS ray plugin. -->
+  <xacro:arg name="use_lidar" default="true"/>
+
   <!-- ==================== inertia macros ==================== -->
   <xacro:macro name="box_inertia" params="m x y z">
     <inertial>
@@ -238,6 +243,7 @@
 
   <gazebo reference="base_scan">
     <material>Gazebo/Black</material>
+    <xacro:if value="$(arg use_lidar)">
     <sensor name="lidar" type="ray">
       <pose>0 0 0 0 0 0</pose>
       <always_on>true</always_on>
@@ -271,6 +277,7 @@
         <frame_name>base_scan</frame_name>
       </plugin>
     </sensor>
+    </xacro:if>
   </gazebo>
 
   <gazebo>

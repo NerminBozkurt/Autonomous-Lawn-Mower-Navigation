@@ -1,0 +1,3 @@
+[INFO] [1791117887.578162128] [metrics_recorder]: Metrics recorder "dwb_run3" waiting for a FollowPath goal; output -> /home/user/Autonomous-Lawn-Mower-Navigation/results/benchmark/raw
+[INFO] [1791117913.807994874] [metrics_recorder]: FollowPath goal executing, recording
+[INFO] [1791117929.115615567] [metrics_recorder]: Run aborted in 14.2 s: CTE RMS swath 0.003 m, turn nan m, coverage 28.2 %

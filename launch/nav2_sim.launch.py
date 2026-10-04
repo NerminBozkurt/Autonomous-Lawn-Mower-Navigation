@@ -27,20 +27,33 @@ def launch_setup(context, *args, **kwargs):
     nav2_params_file = os.path.join(pkg_share, 'config', f'nav2_{controller}_fair.yaml')
     map_yaml_file = os.path.join(pkg_share, 'maps', 'empty_map.yaml')
     rviz_config_file = os.path.join(pkg_share, 'rviz', 'mower_view.rviz')
-    nav2_bringup_launch = '/opt/ros/humble/share/nav2_bringup/launch/navigation_launch.py'
+    nav2_bringup_launch = os.path.join(
+        get_package_share_directory('nav2_bringup'), 'launch', 'navigation_launch.py')
 
     print(f"\n[mower_sim] Controller: {controller.upper()}")
     print(f"[mower_sim] Params: {nav2_params_file}\n")
 
-    robot_description = xacro.process_file(xacro_file).toxml()
+    use_lidar = LaunchConfiguration('use_lidar').perform(context)
+    robot_description = xacro.process_file(
+        xacro_file, mappings={'use_lidar': use_lidar}).toxml()
 
+    # gazebo_params.yaml raises the /clock rate from its 10 Hz default.
+    gazebo_params_file = os.path.join(pkg_share, 'config', 'gazebo_params.yaml')
     gzserver = ExecuteProcess(
         cmd=['gzserver', '--verbose',
              '-s', 'libgazebo_ros_init.so',
              '-s', 'libgazebo_ros_factory.so',
-             world_file],
+             world_file,
+             '--ros-args', '--params-file', gazebo_params_file, '--'],
         output='screen',
     )
+    # headless:=true drops both GUIs (scripted benchmark runs); gazebo_gui and
+    # rviz switch them off one at a time.
+    headless = LaunchConfiguration('headless').perform(context) == 'true'
+    use_gzclient = not headless and \
+        LaunchConfiguration('gazebo_gui').perform(context) == 'true'
+    use_rviz = not headless and \
+        LaunchConfiguration('rviz').perform(context) == 'true'
     gzclient = ExecuteProcess(cmd=['gzclient'], output='screen')
 
     robot_state_publisher = Node(
@@ -111,19 +124,28 @@ def launch_setup(context, *args, **kwargs):
         output='screen',
     )
 
+    # Ground-truth track of the robot, drawn in RViz next to /coverage_path.
+    robot_trail = Node(
+        package='mower_sim',
+        executable='robot_trail_publisher',
+        output='screen',
+        parameters=[{'use_sim_time': True}],
+    )
+
     return [
         SetEnvironmentVariable(
             name='GAZEBO_MODEL_PATH',
-            value=os.environ.get('GAZEBO_MODEL_PATH', '') +
-                  ':/opt/ros/humble/share'
+            value=os.environ.get('GAZEBO_MODEL_PATH', '') + ':' +
+                  os.path.dirname(get_package_share_directory('gazebo_ros'))
         ),
         gzserver,
-        gzclient,
+        *([gzclient] if use_gzclient else []),
         robot_state_publisher,
         spawn_entity,
         ground_truth_tf,
-        TimerAction(period=20.0, actions=[map_server, map_server_lifecycle,
-                                          nav2, rviz]),
+        robot_trail,
+        TimerAction(period=20.0, actions=[map_server, map_server_lifecycle, nav2,
+                                          *([rviz] if use_rviz else [])]),
     ]
 
 
@@ -133,6 +155,26 @@ def generate_launch_description():
             'controller',
             default_value='rpp',
             description="Which controller to use: 'rpp', 'mppi', or 'dwb'",
+        ),
+        DeclareLaunchArgument(
+            'use_lidar',
+            default_value='true',
+            description='Simulate the 2D lidar (false drops the ray sensor)',
+        ),
+        DeclareLaunchArgument(
+            'headless',
+            default_value='false',
+            description='Run without gzclient and RViz',
+        ),
+        DeclareLaunchArgument(
+            'gazebo_gui',
+            default_value='true',
+            description='Start the Gazebo client window',
+        ),
+        DeclareLaunchArgument(
+            'rviz',
+            default_value='true',
+            description='Start RViz with rviz/mower_view.rviz',
         ),
         OpaqueFunction(function=launch_setup),
     ])

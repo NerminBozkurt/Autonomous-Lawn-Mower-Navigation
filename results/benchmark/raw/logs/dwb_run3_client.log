@@ -1,0 +1,19 @@
+[INFO] [1791117912.794885815] [mowing_path_client]: Waiting for FollowPath action server...
+[INFO] [1791117913.798892109] [mowing_path_client]: Sending coverage path: 349 poses
+[INFO] [1791117913.810347597] [mowing_path_client]: Goal accepted, robot is moving
+[INFO] [1791117913.817485469] [mowing_path_client]: Distance to goal: 17.35 m, speed: 0.93 m/s
+[INFO] [1791117914.844696727] [mowing_path_client]: Distance to goal: 16.90 m, speed: 1.00 m/s
+[INFO] [1791117915.845074158] [mowing_path_client]: Distance to goal: 15.95 m, speed: 1.00 m/s
+[INFO] [1791117916.848119257] [mowing_path_client]: Distance to goal: 15.00 m, speed: 1.00 m/s
+[INFO] [1791117917.881508951] [mowing_path_client]: Distance to goal: 14.05 m, speed: 1.00 m/s
+[INFO] [1791117918.913449445] [mowing_path_client]: Distance to goal: 13.45 m, speed: 0.40 m/s
+[INFO] [1791117919.946888564] [mowing_path_client]: Distance to goal: 13.75 m, speed: 0.40 m/s
+[INFO] [1791117920.978526372] [mowing_path_client]: Distance to goal: 14.05 m, speed: 1.00 m/s
+[INFO] [1791117921.982220002] [mowing_path_client]: Distance to goal: 13.80 m, speed: 0.40 m/s
+[INFO] [1791117922.984561169] [mowing_path_client]: Distance to goal: 14.00 m, speed: 1.00 m/s
+[INFO] [1791117924.021506849] [mowing_path_client]: Distance to goal: 13.80 m, speed: 0.40 m/s
+[INFO] [1791117925.048426226] [mowing_path_client]: Distance to goal: 14.00 m, speed: 1.00 m/s
+[INFO] [1791117926.079262163] [mowing_path_client]: Distance to goal: 13.80 m, speed: 0.40 m/s
+[INFO] [1791117927.079621039] [mowing_path_client]: Distance to goal: 14.00 m, speed: 1.00 m/s
+[INFO] [1791117928.081855489] [mowing_path_client]: Distance to goal: 13.80 m, speed: 0.40 m/s
+[ERROR] [1791117928.909283533] [mowing_path_client]: FollowPath ended with status 6

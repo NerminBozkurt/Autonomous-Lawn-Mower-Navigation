@@ -1,0 +1,3 @@
+[INFO] [1791117725.431735606] [metrics_recorder]: Metrics recorder "mppi_run2" waiting for a FollowPath goal; output -> /home/user/Autonomous-Lawn-Mower-Navigation/results/benchmark/raw
+[INFO] [1791117752.541029478] [metrics_recorder]: FollowPath goal executing, recording
+[INFO] [1791117761.260071526] [metrics_recorder]: Run aborted in 8.2 s: CTE RMS swath 1.488 m, turn nan m, coverage 1.8 %

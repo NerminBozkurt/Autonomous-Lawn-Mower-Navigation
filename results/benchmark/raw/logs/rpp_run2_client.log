@@ -1,0 +1,24 @@
+[INFO] [1791117700.507215981] [mowing_path_client]: Waiting for FollowPath action server...
+[INFO] [1791117700.508144019] [mowing_path_client]: Sending coverage path: 349 poses
+[INFO] [1791117701.347663384] [mowing_path_client]: Goal accepted, robot is moving
+[INFO] [1791117701.362560808] [mowing_path_client]: Distance to goal: 17.35 m, speed: 1.00 m/s
+[INFO] [1791117702.373378021] [mowing_path_client]: Distance to goal: 16.85 m, speed: 1.00 m/s
+[INFO] [1791117703.374738716] [mowing_path_client]: Distance to goal: 15.90 m, speed: 1.00 m/s
+[INFO] [1791117704.406683360] [mowing_path_client]: Distance to goal: 14.95 m, speed: 1.00 m/s
+[INFO] [1791117705.407078915] [mowing_path_client]: Distance to goal: 14.00 m, speed: 1.00 m/s
+[INFO] [1791117706.407284786] [mowing_path_client]: Distance to goal: 13.10 m, speed: 0.00 m/s
+[INFO] [1791117707.407301305] [mowing_path_client]: Distance to goal: 12.55 m, speed: 0.00 m/s
+[INFO] [1791117708.442441043] [mowing_path_client]: Distance to goal: 12.50 m, speed: 0.67 m/s
+[INFO] [1791117709.473330155] [mowing_path_client]: Distance to goal: 10.68 m, speed: 1.00 m/s
+[INFO] [1791117710.474190748] [mowing_path_client]: Distance to goal: 9.73 m, speed: 1.00 m/s
+[INFO] [1791117711.474653251] [mowing_path_client]: Distance to goal: 8.78 m, speed: 1.00 m/s
+[INFO] [1791117712.475936870] [mowing_path_client]: Distance to goal: 7.83 m, speed: 1.00 m/s
+[INFO] [1791117713.507652413] [mowing_path_client]: Distance to goal: 6.93 m, speed: 1.00 m/s
+[INFO] [1791117714.507959065] [mowing_path_client]: Distance to goal: 6.38 m, speed: 0.00 m/s
+[INFO] [1791117715.540930772] [mowing_path_client]: Distance to goal: 6.33 m, speed: 0.72 m/s
+[INFO] [1791117716.574203600] [mowing_path_client]: Distance to goal: 4.45 m, speed: 1.00 m/s
+[INFO] [1791117717.607034083] [mowing_path_client]: Distance to goal: 3.50 m, speed: 1.00 m/s
+[INFO] [1791117718.640807161] [mowing_path_client]: Distance to goal: 2.50 m, speed: 1.00 m/s
+[INFO] [1791117719.673313512] [mowing_path_client]: Distance to goal: 1.55 m, speed: 1.00 m/s
+[INFO] [1791117720.673406362] [mowing_path_client]: Distance to goal: 0.60 m, speed: 1.00 m/s
+[INFO] [1791117721.040848436] [mowing_path_client]: Coverage path completed

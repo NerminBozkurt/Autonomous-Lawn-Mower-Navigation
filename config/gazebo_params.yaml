@@ -1,0 +1,7 @@
+# Parameters for the gazebo_ros node living inside gzserver.
+gazebo:
+  ros__parameters:
+    # /clock rate. The default of 10 Hz quantises every sim-time stamp to
+    # 100 ms, coarser than the 30 Hz controller loop and too coarse to
+    # differentiate yaw rate for the smoothness metrics.
+    publish_rate: 100.0
