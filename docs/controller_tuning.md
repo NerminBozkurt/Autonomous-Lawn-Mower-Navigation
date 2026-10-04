@@ -161,7 +161,7 @@ Two causes, both tied to the tight 0.375 m U-turn radius:
   already on the next swath before the robot reached the turn, so pure
   pursuit cut the corner. A long lookahead also means a low corrective gain,
   hence the slow recovery after the turn.
-- **Yaw-rate saturation.** The veocity_smoother caps the yaw rate at
+- **Yaw-rate saturation.** The velocity_smoother caps the yaw rate at
   1.0 rad/s. Following a 0.375 m radius at 1 rad/s needs a speed of at most
   0.375 m/s, but with `regulated_linear_scaling_min_radius: 0.8` RPP only
   slowed to about 1.0 × 0.375 / 0.8 ≈ 0.47 m/s. The smoother then clipped the
