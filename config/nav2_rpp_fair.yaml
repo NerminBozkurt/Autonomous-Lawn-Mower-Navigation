@@ -84,18 +84,23 @@ controller_server:
     FollowPath:
       plugin: nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController
       desired_linear_vel: 1.0
-      lookahead_dist: 1.2
-      min_lookahead_dist: 0.7
-      max_lookahead_dist: 1.5
+      # Short enough that the carrot stays in the U-turn (radius 0.375 m)
+      # instead of jumping to the next swath and cutting the corner.
+      lookahead_dist: 0.7
+      min_lookahead_dist: 0.35
+      max_lookahead_dist: 0.7
       use_velocity_scaled_lookahead_dist: true
-      rotate_to_heading: true
+      use_rotate_to_heading: true
       rotate_to_heading_min_angle: 0.785
       max_angular_accel: 20.0
       max_angular_vel: 1.0
       allow_reversing: false
             # --- REGULACIÓN POR CURVATURA ---
       use_regulated_linear_velocity_scaling: true
-      regulated_linear_scaling_min_radius: 0.8   
+      # Must be >= desired_linear_vel / max angular vel (1.0 / 1.0 in the
+      # velocity_smoother); below that the smoother clips the yaw rate but not
+      # the speed, and the robot swings wide of tight turns.
+      regulated_linear_scaling_min_radius: 1.5
       regulated_linear_scaling_min_speed: 0.30   
       # --- REGULACIÓN POR COSTE (PROXIMIDAD A OBSTÁCULOS) ---
       use_cost_regulated_linear_velocity_scaling: true

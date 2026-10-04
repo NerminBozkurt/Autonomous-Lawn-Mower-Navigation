@@ -141,14 +141,101 @@ small rise in commanded yaw jerk.
 
 ---
 
+## 2026-10-04 — RPP: corner cutting and slow recovery after U-turns
+
+**Config:** `config/nav2_rpp_fair.yaml`
+
+### Symptom
+
+RPP completed the path (18.6 s) but tracked it poorly: swath CTE RMS
+12.7 cm, turns 20.9 cm, coverage 91 %. The first swath was perfect (0 cm).
+The robot started each U-turn about 1 m early, cut inside it, sometimes
+stopped to rotate in place mid-turn, then overshot the next swath by up to
+26 cm and took several metres to settle.
+
+### Diagnosis
+
+Two causes, both tied to the tight 0.375 m U-turn radius:
+
+- **Lookahead too long.** At 0.7–1.5 m (1.5 m at full speed) the carrot was
+  already on the next swath before the robot reached the turn, so pure
+  pursuit cut the corner. A long lookahead also means a low corrective gain,
+  hence the slow recovery after the turn.
+- **Yaw-rate saturation.** The velocity_smoother caps the yaw rate at
+  1.0 rad/s. Following a 0.375 m radius at 1 rad/s needs a speed of at most
+  0.375 m/s, but with `regulated_linear_scaling_min_radius: 0.8` RPP only
+  slowed to about 1.0 × 0.375 / 0.8 ≈ 0.47 m/s. The smoother then clipped the
+  yaw rate but not the speed, so the robot turned wider than commanded. The
+  rule is `min_radius >= desired_linear_vel / max_yaw_rate` (here ≥ 1.0 m).
+
+Shortening the lookahead alone (variants R1, R3 below) made things worse:
+with the yaw rate still saturating, the higher gain turned into a ±25 cm
+weave after each turn. The weave was large enough to exceed
+`rotate_to_heading_min_angle` (45°), so the robot kept stopping to rotate in
+place. Both changes were needed together.
+
+What remains is a ~10 cm overshoot at each turn exit. It comes mostly from
+the velocity_smoother's 1.0 rad/s² yaw acceleration limit (unwinding from
+1 rad/s to 0 takes a full second) and was left alone, because that limit is
+shared by all three controllers.
+
+### Change
+
+| Parameter | Before | After |
+|---|---:|---:|
+| `lookahead_dist` | 1.2 | 0.7 |
+| `min_lookahead_dist` | 0.7 | 0.35 |
+| `max_lookahead_dist` | 1.5 | 0.7 |
+| `regulated_linear_scaling_min_radius` | 0.8 | 1.5 |
+| `rotate_to_heading` → `use_rotate_to_heading` | `true` (ignored) | `true` |
+
+The last row is a rename only. Humble reads `use_rotate_to_heading`, whose
+default is already `true`, so behaviour is unchanged.
+
+### Effect
+
+| | Before | After (run 1) | After (run 2) | After (final config) |
+|---|---:|---:|---:|---:|
+| Result | succeeded | succeeded | succeeded | succeeded |
+| Completion time [s] | 18.6 | 22.7 | 22.7 | 22.7 |
+| CTE RMS, swaths [cm] | 12.7 | 1.1 | 1.0 | 1.0 |
+| CTE max, swaths [cm] | 26.5 | 5.2 | 5.2 | 5.2 |
+| CTE RMS, turns [cm] | 20.9 | 4.8 | 4.8 | 4.9 |
+| CTE max, turns [cm] | 37.3 | 10.5 | 10.3 | 10.6 |
+| Yaw jerk RMS (cmd) [rad/s³] | 5.3 | 3.7 | 4.7 | 5.1 |
+| Coverage [%] | 91.0 | 98.2 | 98.2 | 98.1 |
+
+The cost is about 4 s of completion time, from slowing down in the turns.
+
+### Variants tried
+
+Lookahead given as min–max in metres.
+
+| Variant | Lookahead | min_radius | Time [s] | Swath RMS [cm] | Turn RMS [cm] | Coverage [%] |
+|---|---|---:|---:|---:|---:|---:|
+| Baseline | 0.7–1.5 | 0.8 | 18.6 | 12.7 | 20.9 | 91.0 |
+| R1 | 0.3–0.6 | 0.8 | 35.9 | 15.5 | 9.9 | 92.4 |
+| R2 | 0.4–0.8 | 0.8 | 20.8 | 5.9 | 8.2 | 95.4 |
+| R3 | 0.5 fixed | 0.8 | 39.7 | 18.2 | 10.5 | 93.6 |
+| R4 | 0.4–0.8 | 1.2 | 21.6 | 2.1 | 6.7 | 97.6 |
+| R5 | 0.3–0.6 | 1.2 | 22.4 | 5.0 | 3.3 | 96.0 |
+| R6 | 0.4–0.8 | 1.5 | 22.4 | 1.9 | 6.5 | 97.8 |
+| **R7 (adopted)** | **0.35–0.7** | **1.5** | **22.7** | **1.1** | **4.8** | **98.2** |
+
+---
+
 ## Open notes
 
 - **Benchmark table is stale.** `results/benchmark/summary_table.md` predates
-  both MPPI fixes (MPPI shows as aborted at 8.2 s). Re-run the 3×3 benchmark
-  before quoting numbers.
-- **Fairness.** MPPI has now been tuned; RPP and DWB are still at their
-  initial settings. Either state this in the thesis or give the other two
-  controllers an equivalent tuning pass.
+  the MPPI and RPP tuning (MPPI shows as aborted at 8.2 s). Re-run the 3×3
+  benchmark before quoting numbers.
+- **Fairness.** MPPI and RPP have now been tuned; DWB is still at its initial
+  settings. Either state this in the thesis or give DWB an equivalent tuning
+  pass.
+- **Shared velocity_smoother limits.** The 1.0 rad/s yaw-rate cap and
+  1.0 rad/s² yaw-acceleration limit bound every controller in the tight
+  U-turns, and cause most of RPP's remaining turn-exit overshoot. If they are
+  changed, change them for all three configs and re-tune.
 - **MPPI weights versus Nav2 defaults.** Several weights are still well below
   the defaults (e.g. `GoalCritic` 2.0 vs 5.0, `PathFollowCritic` 3.0 vs 5.0).
   Worth reviewing if MPPI is tuned further.
