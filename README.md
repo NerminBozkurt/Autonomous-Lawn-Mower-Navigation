@@ -12,6 +12,28 @@ The broader thesis proposal ("Autonomous Lawn Mower Operation for Large-Scale Fi
 
 Obstacle avoidance and autonomous docking are **out of scope** for this part of the project.
 
+## Running one controller and watching it in RViz
+
+Each launch loads exactly one controller (`controller:=rpp|mppi|dwb`, one
+`FollowPath` plugin in its `config/nav2_<controller>_fair.yaml`).
+
+```bash
+# terminal 1: Gazebo + Nav2 + RViz
+ros2 launch mower_sim nav2_sim.launch.py controller:=rpp
+
+# terminal 2, once Nav2 reports "Managed nodes are active": send the coverage path
+ros2 run mower_sim run_mowing_path --ros-args -p use_sim_time:=true
+
+# optional, terminal 3 (start before terminal 2): write the metrics CSVs
+ros2 run mower_sim metrics_recorder --ros-args -p use_sim_time:=true -p controller:=rpp
+```
+
+RViz (`rviz/mower_view.rviz`) shows the robot model, the reference path in
+yellow (`/coverage_path`) and the path the robot has actually driven in blue
+(`/robot_trail`, ground truth, cleared at the start of every FollowPath goal).
+`gazebo_gui:=false` skips the Gazebo window; `rviz:=false` skips RViz. The robot
+is not reset between goals, so restart the launch for each new run.
+
 ## Controller benchmark
 
 `metrics_recorder` listens to `/coverage_path`, the FollowPath action status and

@@ -5,7 +5,6 @@ from launch.actions import (
     ExecuteProcess, SetEnvironmentVariable, IncludeLaunchDescription,
     TimerAction, DeclareLaunchArgument, OpaqueFunction
 )
-from launch.conditions import UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -48,9 +47,14 @@ def launch_setup(context, *args, **kwargs):
              '--ros-args', '--params-file', gazebo_params_file, '--'],
         output='screen',
     )
-    # headless:=true drops the Gazebo GUI and RViz, for scripted benchmark runs.
-    gzclient = ExecuteProcess(cmd=['gzclient'], output='screen',
-                              condition=UnlessCondition(LaunchConfiguration('headless')))
+    # headless:=true drops both GUIs (scripted benchmark runs); gazebo_gui and
+    # rviz switch them off one at a time.
+    headless = LaunchConfiguration('headless').perform(context) == 'true'
+    use_gzclient = not headless and \
+        LaunchConfiguration('gazebo_gui').perform(context) == 'true'
+    use_rviz = not headless and \
+        LaunchConfiguration('rviz').perform(context) == 'true'
+    gzclient = ExecuteProcess(cmd=['gzclient'], output='screen')
 
     robot_state_publisher = Node(
         package='robot_state_publisher',
@@ -118,7 +122,14 @@ def launch_setup(context, *args, **kwargs):
         arguments=['-d', rviz_config_file],
         parameters=[{'use_sim_time': True}],
         output='screen',
-        condition=UnlessCondition(LaunchConfiguration('headless')),
+    )
+
+    # Ground-truth track of the robot, drawn in RViz next to /coverage_path.
+    robot_trail = Node(
+        package='mower_sim',
+        executable='robot_trail_publisher',
+        output='screen',
+        parameters=[{'use_sim_time': True}],
     )
 
     return [
@@ -128,12 +139,13 @@ def launch_setup(context, *args, **kwargs):
                   os.path.dirname(get_package_share_directory('gazebo_ros'))
         ),
         gzserver,
-        gzclient,
+        *([gzclient] if use_gzclient else []),
         robot_state_publisher,
         spawn_entity,
         ground_truth_tf,
-        TimerAction(period=20.0, actions=[map_server, map_server_lifecycle,
-                                          nav2, rviz]),
+        robot_trail,
+        TimerAction(period=20.0, actions=[map_server, map_server_lifecycle, nav2,
+                                          *([rviz] if use_rviz else [])]),
     ]
 
 
@@ -153,6 +165,16 @@ def generate_launch_description():
             'headless',
             default_value='false',
             description='Run without gzclient and RViz',
+        ),
+        DeclareLaunchArgument(
+            'gazebo_gui',
+            default_value='true',
+            description='Start the Gazebo client window',
+        ),
+        DeclareLaunchArgument(
+            'rviz',
+            default_value='true',
+            description='Start RViz with rviz/mower_view.rviz',
         ),
         OpaqueFunction(function=launch_setup),
     ])
