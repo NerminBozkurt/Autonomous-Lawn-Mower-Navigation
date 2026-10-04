@@ -224,13 +224,9 @@ Lookahead given as min–max in metres.
 
 ---
 
-## 2026-10-04 — DWB: reversing before U-turns (in progress)
+## 2026-10-04 — DWB: reversing before U-turns
 
 **Config:** `config/nav2_dwb_fair.yaml`
-
-**Status: unresolved.** The committed config (variant W4 below) completes
-the path in only about half of the runs. Tuning continues; this entry
-records what has been established so far.
 
 ### Symptom
 
@@ -238,7 +234,7 @@ DWB tracked the first swath almost perfectly, then about 1 m before the
 first U-turn it started reversing and rocked back and forth between
 x ≈ 3.3 and 3.5 m without ever turning, until the progress checker aborted.
 
-### Diagnosis so far
+### Diagnosis
 
 Verified against the Humble source and the critic scores DWB publishes on
 `/evaluation` (`debug_trajectory_details: true`):
@@ -261,8 +257,10 @@ Verified against the Humble source and the critic scores DWB publishes on
   freeze on the path. Scores captured during a freeze show standing still
   and moving forward tie exactly (9.36 vs 9.36: GoalDist gained exactly what
   GoalAlign lost), and DWB keeps the first-evaluated candidate, standing
-  still. A likely but unconfirmed cause: with the goal this close,
-  GoalAlign's forward point overshoots it.
+  still. With the goal this close, GoalAlign's forward point (taken ahead
+  of each trajectory's end) overshoots it, so moving forward costs in
+  GoalAlign what it gains in GoalDist. Removing GoalAlign (variant X1)
+  ended the freezes.
 - **GoalDist is DWB's only progress term.** Removing GoalDist and GoalAlign
   leaves the robot standing still at the start.
 
@@ -280,19 +278,55 @@ Failures are random, so success rates need several runs per variant.
 | W5 | 0.3 / 0.6 | 0.6 | | 4/6 |
 | W6 | 0.3 / 0.6 | 0.6 | Nav2 default critic scales | 0/3 |
 | W7 | 0.35 / 0.65 | 0.4 | | 0/3 |
+| X3 | 0.3 / 0.6 | 0.6 | no GoalAlign | 25/26 |
+| **X1 (adopted)** | **0.3 / 0.6** | **0.6** | **no GoalAlign, no Oscillation** | **12/12** |
 
 W3 was speed-capped because a trajectory longer than the 0.7 m window
 overshoots its goal, so `sim_time × max_vel_x` should not exceed
-`forward_prune_distance`. When they succeed, W4 and W5 track well: about
-23 s, swath CTE RMS 1.5–2 cm, coverage about 98 %.
+`forward_prune_distance`.
 
-### Next steps
+### Change
 
-- Remove the Oscillation and/or GoalAlign critics while keeping GoalDist,
-  PathDist and PathAlign.
-- Try `min_vel_x: 0.0` (no reversing).
-- If no variant is reliable over at least six runs, document the result:
-  Humble DWB's goal-based critics conflict with folded coverage paths.
+| Parameter | Before | After |
+|---|---:|---:|
+| `prune_distance` | 2.0 (default) | 0.3 |
+| `forward_prune_distance` | 2.0 (default) | 0.6 |
+| `sim_time` | 1.2 | 0.6 |
+| `critics` | RotateToGoal, Oscillation, BaseObstacle, GoalAlign, PathAlign, PathDist, GoalDist | RotateToGoal, BaseObstacle, PathAlign, PathDist, GoalDist |
+
+Removing GoalAlign is the main fix. An ablation that keeps the Oscillation
+critic (X3) completed 25 of 26 runs, against 4 of 6 with GoalAlign still
+in (W5). Oscillation is dropped as well because X3's one failure looks like
+the original lock-up: in the second U-turn the robot slipped back about
+4 cm and then froze in place until the progress checker aborted, the
+pattern of the Oscillation critic forbidding the forward direction after a
+reversal. The scores for that freeze could not be captured: 14 further X3
+runs, watched for a stall, all completed. Once the plan no longer folds
+back the robot has no reason to reverse, so the critic has nothing useful
+to damp. X3 and X1 track equally well (X3, mean of the 11 successful
+benchmark runs, which record metrics: 24.2 s, swath CTE RMS 2.6 cm, turn
+CTE RMS 2.8 cm, coverage 97.5 %).
+
+### Effect
+
+Mean over 12 runs, range in brackets. The baseline aborted in front of
+the first U-turn every time.
+
+| | Before | After (X1, 12 runs) |
+|---|---:|---:|
+| Succeeded | 0/1 | 12/12 |
+| Completion time [s] | — (aborted at 14.3) | 23.9 (23.5–24.4) |
+| CTE RMS, swaths [cm] | — | 2.8 (2.0–3.5) |
+| CTE max, swaths [cm] | — | 5.1 (3.6–6.3) |
+| CTE RMS, turns [cm] | — | 2.8 (2.7–3.0) |
+| CTE max, turns [cm] | — | 6.9 (6.3–7.5) |
+| Yaw jerk RMS (cmd) [rad/s³] | 21.5 | 15.0 (13.1–16.7) |
+| Coverage [%] | 28.4 | 97.5 (96.8–98.1) |
+
+DWB now tracks the turns more closely than the tuned RPP (turn CTE RMS
+2.8 vs 4.9 cm), but stays a few cm off on the swaths and its commanded yaw
+is far less smooth (jerk RMS about 15 vs 5), since it switches between
+discrete velocity samples.
 
 ---
 
@@ -301,9 +335,9 @@ overshoots its goal, so `sim_time × max_vel_x` should not exceed
 - **Benchmark table is stale.** `results/benchmark/summary_table.md` predates
   the MPPI and RPP tuning (MPPI shows as aborted at 8.2 s). Re-run the 3×3
   benchmark before quoting numbers.
-- **Fairness.** MPPI and RPP have now been tuned; DWB tuning is in progress
-  and not yet reliable (see above). Either state this in the thesis or
-  finish an equivalent tuning pass for DWB.
+- **Fairness.** All three controllers have now had a tuning pass on this
+  path; RPP and DWB also needed structural fixes, not just gains. State
+  in the thesis which parameters differ from Nav2's defaults and why.
 - **Shared velocity_smoother limits.** The 1.0 rad/s yaw-rate cap and
   1.0 rad/s² yaw-acceleration limit bound every controller in the tight
   U-turns, and cause most of RPP's remaining turn-exit overshoot. If they are
