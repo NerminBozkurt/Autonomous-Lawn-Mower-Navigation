@@ -107,11 +107,11 @@ controller_server:
       # 0.75 m swath spacing that end folds back onto the next swath, behind
       # the robot, and DWB reverses in front of every U-turn. prune_distance
       # must stay below forward_prune_distance or the plan comes out empty.
-      prune_distance: 0.4
-      forward_prune_distance: 0.7
+      prune_distance: 0.3
+      forward_prune_distance: 0.6
       # A trajectory longer than forward_prune_distance overshoots that end,
       # so sim_time * max_vel_x must not exceed it or DWB caps its own speed.
-      sim_time: 0.7
+      sim_time: 0.6
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
@@ -119,19 +119,19 @@ controller_server:
       trans_stopped_velocity: 0.25
       short_circuit_trajectory_evaluation: true
       stateful: true
+      # No GoalAlign: with the goal this close its forward point overshoots
+      # it, cancelling GoalDist's reward for moving forward, and the tie made
+      # DWB freeze at random. No Oscillation: the robot no longer reverses,
+      # so there is nothing to damp, and it blocked recovery in the old setup.
       critics:
       - RotateToGoal
-      - Oscillation
       - BaseObstacle
-      - GoalAlign
       - PathAlign
       - PathDist
       - GoalDist
       BaseObstacle.scale: 0.02
       PathAlign.scale: 1.0
       PathAlign.forward_point_distance: 0.5
-      GoalAlign.scale: 4.0
-      GoalAlign.forward_point_distance: 0.2
       PathDist.scale: 36.0
       GoalDist.scale: 6.0
       RotateToGoal.scale: 8.0
