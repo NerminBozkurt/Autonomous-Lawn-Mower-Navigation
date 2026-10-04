@@ -12,6 +12,32 @@ The broader thesis proposal ("Autonomous Lawn Mower Operation for Large-Scale Fi
 
 Obstacle avoidance and autonomous docking are **out of scope** for this part of the project.
 
+## Controller benchmark
+
+`metrics_recorder` listens to `/coverage_path`, the FollowPath action status and
+the ground-truth robot pose (TF `map -> base_footprint`), and on goal completion
+writes CSVs with:
+
+- cross-track error (RMS and max), separately for swaths and U-turns. Each turn
+  is widened by `turn_margin` (1 m) of path on both sides so a controller that
+  cuts the corner is scored on the turn, not on the swath ends;
+- completion time (FollowPath goal executing -> finished, sim time);
+- yaw-rate smoothness: RMS/max angular acceleration and jerk, from `/cmd_vel`
+  and from `/odom`, plus the count of samples with |jerk| above `jerk_threshold`;
+- a rough coverage percentage: the share of the swath area (0.75 m strips) that
+  a 0.75 m wide cutter centred on the robot swept.
+
+Run every controller three times on the same path, headless, then build the
+table and the figure:
+
+```bash
+python3 scripts/run_benchmark.py --runs 3 --output-dir results/benchmark/raw
+python3 scripts/analyze_benchmark.py --raw-dir results/benchmark/raw --out-dir results/benchmark
+```
+
+Add `--launch-args use_lidar:=false` if your Gazebo build crashes loading the
+ray sensor plugin (seen with RoboStack); the lidar is not used on the empty field.
+
 ## Status
 
 Work in progress.

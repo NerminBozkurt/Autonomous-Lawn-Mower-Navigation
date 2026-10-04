@@ -1,0 +1,4 @@
+controller,runs,succeeded,completion_time_s_mean,completion_time_s_std,cte_rms_swath_mean,cte_rms_swath_std,cte_max_swath_mean,cte_max_swath_std,cte_rms_turn_mean,cte_rms_turn_std,cte_max_turn_mean,cte_max_turn_std,cmd_ang_jerk_rms_mean,cmd_ang_jerk_rms_std,cmd_ang_jerk_events_mean,cmd_ang_jerk_events_std,odom_ang_jerk_rms_mean,odom_ang_jerk_rms_std,coverage_pct_mean,coverage_pct_std
+rpp,3,3,18.751,0.077,12.837,0.196,24.093,0.411,21.183,0.240,37.223,0.065,6.729,0.212,25.00,2.00,18.936,5.562,91.061,0.103
+mppi,3,0,8.163,0.039,148.627,0.693,261.020,1.604,,,,,0.495,0.103,0.00,0.00,2.077,0.438,1.766,0.002
+dwb,3,0,14.255,0.021,0.330,0.040,2.493,0.064,,,,,19.049,0.391,184.00,10.00,20.641,0.576,27.968,0.225

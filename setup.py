@@ -36,6 +36,7 @@ setup(
             'run_mowing_path = mower_sim.run_mowing_path:main',
             'robot_trail_publisher = mower_sim.robot_trail_publisher:main',
             'ground_truth_tf_publisher = mower_sim.ground_truth_tf_publisher:main',
+            'metrics_recorder = mower_sim.metrics_recorder:main',
         ],
     },
 )
