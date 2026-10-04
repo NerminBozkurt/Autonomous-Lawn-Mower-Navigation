@@ -119,22 +119,29 @@ controller_server:
         enabled: true
         cost_power: 1
         cost_weight: 4.0
+      # Humble MPPI treats the end of the *local* path (prune_distance ahead)
+      # as the goal. In a U-turn that point folds back onto the next swath,
+      # 0.75 m away, so these thresholds must stay below the swath spacing or
+      # the controller thinks it is arriving and stalls mid-turn.
       GoalCritic:
         enabled: true
         cost_power: 1
         cost_weight: 2.0
-        threshold_to_consider: 1.4
+        threshold_to_consider: 0.5
       GoalAngleCritic:
         enabled: true
         cost_power: 1
         cost_weight: 1.0
         threshold_to_consider: 0.3
+      # Nav2's default weight. offset_from_furthest is counted in path poses
+      # (0.05 m apart here), so 20 left the critic off for the first metre,
+      # and at weight 2.0 a few cm of lateral offset never got corrected.
       PathAlignCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 2.0
+        cost_weight: 14.0
         threshold_to_consider: 0.5
-        offset_from_furthest: 20
+        offset_from_furthest: 5
         trajectory_point_step: 4
         max_path_occupancy_ratio: 0.07
         use_path_orientations: false
@@ -143,7 +150,7 @@ controller_server:
         cost_power: 1
         cost_weight: 3.0
         offset_from_furthest: 6
-        threshold_to_consider: 1.4
+        threshold_to_consider: 0.5
       PathAngleCritic:
         enabled: true
         cost_power: 1

@@ -60,6 +60,9 @@ python3 scripts/analyze_benchmark.py --raw-dir results/benchmark/raw --out-dir r
 Add `--launch-args use_lidar:=false` if your Gazebo build crashes loading the
 ray sensor plugin (seen with RoboStack); the lidar is not used on the empty field.
 
+Changes to the controller configs, with the reasoning and measurements behind
+each, are logged in [docs/controller_tuning.md](docs/controller_tuning.md).
+
 ## Status
 
 Work in progress.
