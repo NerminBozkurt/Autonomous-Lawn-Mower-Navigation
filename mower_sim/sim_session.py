@@ -30,6 +30,7 @@ from rclpy.action import ActionClient
 from rclpy.clock import Clock, ClockType
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
+from std_msgs.msg import Float32
 
 CONTROLLERS = ('rpp', 'mppi', 'dwb')
 ODOMETRY = ('encoder', 'ground_truth')
@@ -83,6 +84,8 @@ class _PathNode(Node):
             'map')
         self.action = ActionClient(self, FollowPath, 'follow_path')
         self.path_pub = self.create_publisher(Path, '/coverage_path', 10)
+        self.create_subscription(Float32, '/coverage_percent',
+                                 session._on_coverage, 10)
         # Steady clock: /clock restarts at zero every time the simulation is
         # relaunched, and a sim-time timer would stall on that jump.
         self.create_timer(1.0, lambda: self.path_pub.publish(self.path),
@@ -110,6 +113,7 @@ class SimSession:
         self.speed = None
         self.result = None
         self.metrics = None
+        self.coverage = None        # live coverage from coverage_monitor, %
         self.resumed = False        # current goal continues a stopped one
         self.goal_path = None       # the path sent with the current goal
 
@@ -169,6 +173,7 @@ class SimSession:
                 'result': self.result,
                 'metrics': self.metrics,
                 'resumed': self.resumed,
+                'coverage': self.coverage,
             }
 
     # ------------------------------------------------------------ actions
@@ -349,6 +354,11 @@ class SimSession:
             self.message = 'Following the coverage path.'
         handle.get_result_async().add_done_callback(self._on_result)
 
+    def _on_coverage(self, msg):
+        with self._lock:
+            if self.state not in (IDLE, LAUNCHING, SHUTTING_DOWN):
+                self.coverage = msg.data
+
     def _on_feedback(self, msg):
         with self._lock:
             self.distance_left = msg.feedback.distance_to_goal
@@ -415,5 +425,6 @@ class SimSession:
             self.elapsed_before = 0.0
             self.distance_left = None
             self.speed = None
+            self.coverage = None
             self.config = None
             self._set(IDLE, 'Simulation not running.')

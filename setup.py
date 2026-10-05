@@ -39,6 +39,7 @@ setup(
             'metrics_recorder = mower_sim.metrics_recorder:main',
             'wheel_odometry = mower_sim.wheel_odometry:main',
             'control_panel = mower_sim.control_panel:main',
+            'coverage_monitor = mower_sim.coverage_monitor:main',
         ],
     },
 )

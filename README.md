@@ -48,6 +48,29 @@ not used.
 Either way, metrics and the RViz trail use the true pose on
 `/ground_truth/pose`, so they measure where the robot really went.
 
+## Live coverage and the field
+
+`coverage_monitor` runs with the simulation and tracks how much of the field
+the robot has mowed so far, from its true pose. RViz's "Coverage" display
+draws the field boundary in orange, the mowed area in green and a coverage
+label; the control panel shows the same percentage. It uses the definition
+`metrics_recorder` scores runs with (the cutter is a disc one cutting width
+across, centred on the robot frame), so the live figure ends within a fraction
+of a percent of the run's final `coverage_pct`.
+
+By default the field is derived from the coverage path: one cutting width
+wide strip per swath, which for these paths tiles a rectangle (headland turns
+are outside it). For any other field shape give its corners in the map frame:
+
+```bash
+ros2 run mower_sim coverage_monitor --ros-args -p use_sim_time:=true \
+    -p field_polygon:="[0.0, -0.5, 6.0, -0.5, 6.0, 2.0, 0.0, 2.0]"
+```
+
+Coverage accumulates for one launch (Reset in the control panel starts it
+over); `ros2 service call /coverage_monitor/clear std_srvs/srv/Empty` clears
+it by hand.
+
 ## Running one controller from the command line
 
 Each launch loads exactly one controller (`controller:=rpp|mppi|dwb`, one

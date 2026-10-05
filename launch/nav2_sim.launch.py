@@ -145,6 +145,15 @@ def launch_setup(context, *args, **kwargs):
         parameters=[{'use_sim_time': True}],
     )
 
+    # Live coverage of the field and the field boundary, for RViz and the
+    # control panel.
+    coverage_monitor = Node(
+        package='mower_sim',
+        executable='coverage_monitor',
+        output='screen',
+        parameters=[{'use_sim_time': True}],
+    )
+
     # Ground-truth track of the robot, drawn in RViz next to /coverage_path.
     robot_trail = Node(
         package='mower_sim',
@@ -166,6 +175,7 @@ def launch_setup(context, *args, **kwargs):
         ground_truth_tf,
         *([wheel_odometry] if use_encoders else []),
         robot_trail,
+        coverage_monitor,
         TimerAction(period=20.0, actions=[map_server, map_server_lifecycle, nav2,
                                           *([rviz] if use_rviz else [])]),
     ]

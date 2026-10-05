@@ -91,17 +91,17 @@ class ControlPanel:
         status.grid(row=2, column=0, sticky='ew')
         self.status_vars = {}
         for row, name in enumerate(('State', 'Running', 'Remaining',
-                                    'Speed', 'Elapsed')):
+                                    'Speed', 'Elapsed', 'Coverage')):
             ttk.Label(status, text=name).grid(row=row, column=0, sticky='w')
             var = tk.StringVar(value='—')
             ttk.Label(status, textvariable=var).grid(row=row, column=1,
                                                      sticky='w', padx=(12, 0))
             self.status_vars[name] = var
         self.progress = ttk.Progressbar(status, length=320, maximum=100.0)
-        self.progress.grid(row=5, column=0, columnspan=2, sticky='ew',
+        self.progress.grid(row=6, column=0, columnspan=2, sticky='ew',
                            pady=(6, 0))
         self.message = ttk.Label(status, wraplength=320, justify='left')
-        self.message.grid(row=6, column=0, columnspan=2, sticky='w',
+        self.message.grid(row=7, column=0, columnspan=2, sticky='w',
                           pady=(6, 0))
 
         results = ttk.LabelFrame(frame, text='Last run', padding=8)
@@ -206,6 +206,8 @@ class ControlPanel:
         self.status_vars['Speed'].set(_fmt(snap['speed'], 'm/s'))
         self.status_vars['Elapsed'].set(
             _fmt(snap['elapsed'], 's', 1) if config else '—')
+        self.status_vars['Coverage'].set(
+            _fmt(snap['coverage'], '% of the field', 1))
         self.progress['value'] = 0.0 if left is None else \
             max(0.0, min(100.0, 100.0 * (1.0 - left / total)))
         self.message.configure(text=snap['message'])
