@@ -10,7 +10,6 @@ The broader thesis proposal ("Autonomous Lawn Mower Operation for Large-Scale Fi
 - Use [Nav2](https://docs.nav2.org) to follow that path as accurately as possible, evaluating and comparing different local controllers (MPPI, Regulated Pure Pursuit, DWB).
 - Based on that analysis, improve/extend the navigation stack to get better path-following performance.
 
-Obstacle avoidance and autonomous docking are **out of scope** for this part of the project.
 
 ## Running one controller and watching it in RViz
 
@@ -31,8 +30,7 @@ ros2 run mower_sim metrics_recorder --ros-args -p use_sim_time:=true -p controll
 RViz (`rviz/mower_view.rviz`) shows the robot model, the reference path in
 yellow (`/coverage_path`) and the path the robot has actually driven in blue
 (`/robot_trail`, ground truth, cleared at the start of every FollowPath goal).
-`gazebo_gui:=false` skips the Gazebo window; `rviz:=false` skips RViz. The robot
-is not reset between goals, so restart the launch for each new run.
+
 
 ## Controller benchmark
 
@@ -49,16 +47,7 @@ writes CSVs with:
 - a rough coverage percentage: the share of the swath area (0.75 m strips) that
   a 0.75 m wide cutter centred on the robot swept.
 
-Run every controller three times on the same path, headless, then build the
-table and the figure:
 
-```bash
-python3 scripts/run_benchmark.py --runs 3 --output-dir results/benchmark/raw
-python3 scripts/analyze_benchmark.py --raw-dir results/benchmark/raw --out-dir results/benchmark
-```
-
-Add `--launch-args use_lidar:=false` if your Gazebo build crashes loading the
-ray sensor plugin (seen with RoboStack); the lidar is not used on the empty field.
 
 Changes to the controller configs, with the reasoning and measurements behind
 each, are logged in [docs/controller_tuning.md](docs/controller_tuning.md).
