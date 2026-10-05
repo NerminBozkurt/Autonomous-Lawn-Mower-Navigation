@@ -64,6 +64,13 @@
        Gazebo builds (e.g. RoboStack's) crash loading the ROS ray plugin. -->
   <xacro:arg name="use_lidar" default="true"/>
 
+  <!-- true: the diff drive plugin publishes /odom and odom -> base_footprint
+       from Gazebo's ground truth pose. false: it publishes neither, and the
+       wheel_odometry node integrates the wheel joint angles instead (see that
+       node for why the plugin's own encoder mode is not used).
+       nav2_sim.launch.py sets it from its odometry:= argument. -->
+  <xacro:arg name="ground_truth_odometry" default="false"/>
+
   <!-- ==================== inertia macros ==================== -->
   <xacro:macro name="box_inertia" params="m x y z">
     <inertial>
@@ -296,9 +303,10 @@
       <max_wheel_torque>80.0</max_wheel_torque>
       <max_wheel_acceleration>3.0</max_wheel_acceleration>
       <command_topic>cmd_vel</command_topic>
-      <publish_odom>true</publish_odom>
-      <publish_odom_tf>true</publish_odom_tf>
+      <publish_odom>$(arg ground_truth_odometry)</publish_odom>
+      <publish_odom_tf>$(arg ground_truth_odometry)</publish_odom_tf>
       <publish_wheel_tf>false</publish_wheel_tf>
+      <odometry_source>1</odometry_source>
       <odometry_topic>odom</odometry_topic>
       <odometry_frame>odom</odometry_frame>
       <robot_base_frame>base_footprint</robot_base_frame>

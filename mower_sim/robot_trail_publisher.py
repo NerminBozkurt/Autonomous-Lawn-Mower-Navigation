@@ -2,9 +2,10 @@
 """
 Publish the path the robot has actually driven as nav_msgs/Path on /robot_trail.
 
-The pose comes from TF (map -> base_footprint by default), which in the
-simulation is ground truth thanks to ground_truth_tf_publisher, and the trail
-is published in the map frame so it lines up with /coverage_path in RViz.
+The pose comes from /ground_truth/pose (published by
+ground_truth_tf_publisher in the map frame), so the trail shows where the
+robot really went even when it localizes from wheel odometry alone, and it
+lines up with /coverage_path in RViz.
 
 The trail is cleared whenever a new FollowPath goal starts executing, so each
 run shows only its own track.
@@ -15,8 +16,6 @@ from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Path
 import rclpy
 from rclpy.node import Node
-from rclpy.time import Time
-import tf2_ros
 
 
 class RobotTrailPublisher(Node):
@@ -25,7 +24,7 @@ class RobotTrailPublisher(Node):
         super().__init__('robot_trail_publisher')
 
         self.declare_parameter('map_frame', 'map')
-        self.declare_parameter('base_frame', 'base_footprint')
+        self.declare_parameter('pose_topic', '/ground_truth/pose')
         self.declare_parameter('status_topic', '/follow_path/_action/status')
         # Add a pose only after moving this far, so a parked robot does not
         # grow the trail forever.
@@ -34,22 +33,22 @@ class RobotTrailPublisher(Node):
 
         p = self.get_parameter
         self.map_frame = p('map_frame').value
-        self.base_frame = p('base_frame').value
         self.min_distance = p('min_distance').value
 
         self.path = Path()
         self.path.header.frame_id = self.map_frame
         self.goal_id = None
+        self.true_pose = None
 
-        self.tf_buffer = tf2_ros.Buffer()
-        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
+        self.create_subscription(PoseStamped, p('pose_topic').value,
+                                 self.pose_callback, 10)
         self.trail_pub = self.create_publisher(Path, '/robot_trail', 10)
         self.create_subscription(GoalStatusArray, p('status_topic').value,
                                  self.status_callback, 10)
         self.create_timer(1.0 / p('rate').value, self.update)
 
         self.get_logger().info(
-            f'Robot trail: {self.map_frame} -> {self.base_frame} on /robot_trail')
+            f'Robot trail: {p("pose_topic").value} on /robot_trail')
 
     def status_callback(self, msg):
         for status in msg.status_list:
@@ -59,14 +58,13 @@ class RobotTrailPublisher(Node):
                 self.path.poses.clear()
                 self.get_logger().info('New FollowPath goal, trail cleared')
 
+    def pose_callback(self, msg):
+        self.true_pose = msg
+
     def update(self):
-        try:
-            tf = self.tf_buffer.lookup_transform(
-                self.map_frame, self.base_frame, Time())
-        except (tf2_ros.LookupException, tf2_ros.ConnectivityException,
-                tf2_ros.ExtrapolationException):
+        if self.true_pose is None:
             return
-        tr = tf.transform.translation
+        tr = self.true_pose.pose.position
         if self.path.poses:
             last = self.path.poses[-1].pose.position
             if ((tr.x - last.x) ** 2 + (tr.y - last.y) ** 2) ** 0.5 < self.min_distance:
@@ -74,11 +72,8 @@ class RobotTrailPublisher(Node):
                 return
         pose = PoseStamped()
         pose.header.frame_id = self.map_frame
-        pose.header.stamp = tf.header.stamp
-        pose.pose.position.x = tr.x
-        pose.pose.position.y = tr.y
-        pose.pose.position.z = tr.z
-        pose.pose.orientation = tf.transform.rotation
+        pose.header.stamp = self.true_pose.header.stamp
+        pose.pose = self.true_pose.pose
         self.path.poses.append(pose)
         self.publish()
 

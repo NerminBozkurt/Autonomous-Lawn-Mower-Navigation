@@ -5,11 +5,12 @@ Record how well the robot tracks /coverage_path and write the result to CSV.
 Recording is tied to the FollowPath action: it starts when a goal on
 follow_path starts executing and stops when that goal finishes (succeeded,
 aborted or canceled), so the completion time is the controller's, not the
-launch's. While recording, the node samples the ground-truth robot pose from
-TF (map -> base_footprint, which ground_truth_tf_publisher makes exact) on
-every /odom message, thinned to sample_rate, and logs the yaw rate from both
-/cmd_vel (what the robot was told, after Nav2's velocity smoother) and /odom
-(what it did).
+launch's. While recording, the node samples the robot's true pose from
+/ground_truth/pose (published by ground_truth_tf_publisher, so it stays exact
+even when the robot localizes from wheel odometry alone) on every /odom
+message, thinned to sample_rate, and logs the yaw rate from both /cmd_vel
+(what the robot was told, after Nav2's velocity smoother) and /odom (what it
+did).
 
 Samples within turn_margin metres of path from a U-turn count as turn
 samples; see path_metrics.turn_zones for why.
@@ -28,14 +29,13 @@ import math
 import os
 
 from action_msgs.msg import GoalStatus, GoalStatusArray
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import PoseStamped, Twist
 from mower_sim import path_metrics as pm
 from nav_msgs.msg import Odometry, Path
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.time import Time
-import tf2_ros
 
 TERMINAL = {
     GoalStatus.STATUS_SUCCEEDED: 'succeeded',
@@ -68,8 +68,7 @@ class MetricsRecorder(Node):
 
         self.declare_parameter('path_topic', '/coverage_path')
         self.declare_parameter('status_topic', '/follow_path/_action/status')
-        self.declare_parameter('map_frame', 'map')
-        self.declare_parameter('base_frame', 'base_footprint')
+        self.declare_parameter('pose_topic', '/ground_truth/pose')
         self.declare_parameter('sample_rate', 20.0)
         self.declare_parameter('cutting_width', 0.75)
         self.declare_parameter('min_swath_length', 1.0)
@@ -82,8 +81,6 @@ class MetricsRecorder(Node):
         self.declare_parameter('exit_on_finish', True)
 
         p = self.get_parameter
-        self.map_frame = p('map_frame').value
-        self.base_frame = p('base_frame').value
         self.output_dir = os.path.expanduser(p('output_dir').value)
         self.run_label = p('run_label').value
         self.exit_on_finish = p('exit_on_finish').value
@@ -96,9 +93,10 @@ class MetricsRecorder(Node):
         self.poses = []      # (t, x, y, yaw)
         self.cmd_w = []      # (t, wz)
         self.odom_w = []     # (t, wz)
+        self.true_pose = None
 
-        self.tf_buffer = tf2_ros.Buffer()
-        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
+        self.create_subscription(PoseStamped, p('pose_topic').value,
+                                 self.pose_callback, 10)
 
         self.create_subscription(Path, p('path_topic').value,
                                  self.path_callback, 10)
@@ -137,6 +135,9 @@ class MetricsRecorder(Node):
                 self.finish(TERMINAL[status.status])
                 return
 
+    def pose_callback(self, msg):
+        self.true_pose = msg.pose
+
     def cmd_callback(self, msg):
         if self.recording:
             self.cmd_w.append((self._now(), msg.angular.z))
@@ -151,16 +152,13 @@ class MetricsRecorder(Node):
         self.sample_pose(t)
 
     def sample_pose(self, t):
-        try:
-            tf = self.tf_buffer.lookup_transform(
-                self.map_frame, self.base_frame, Time())
-        except (tf2_ros.LookupException, tf2_ros.ConnectivityException,
-                tf2_ros.ExtrapolationException) as exc:
-            self.get_logger().warn(f'No robot pose: {exc}',
-                                   throttle_duration_sec=2.0)
+        if self.true_pose is None:
+            self.get_logger().warn(
+                f'No pose on {self.get_parameter("pose_topic").value} yet',
+                throttle_duration_sec=2.0)
             return
-        tr = tf.transform.translation
-        self.poses.append((t, tr.x, tr.y, _yaw(tf.transform.rotation)))
+        pos = self.true_pose.position
+        self.poses.append((t, pos.x, pos.y, _yaw(self.true_pose.orientation)))
 
     def finish(self, result):
         self.done = True
