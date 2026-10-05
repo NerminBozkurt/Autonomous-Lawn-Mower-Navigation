@@ -332,6 +332,15 @@ discrete velocity samples.
 
 ## Open notes
 
+- **All tuning above used perfect localization.** Every measurement in this
+  log was taken with ground truth odometry, the only mode at the time. The
+  launch default is now `odometry:=encoder` (wheel encoder dead reckoning),
+  so to reproduce these numbers pass
+  `--launch-args odometry:=ground_truth` to `run_benchmark.py`. A first look
+  with encoder odometry raised swath CTE RMS from 1.0 to 2.5 cm for RPP,
+  0.7 to 2.1 cm for MPPI and 2.8 to 4.6 cm for DWB. RPP completed 2 of 2
+  runs, MPPI and DWB 3 of 4 each; too few runs to tell whether encoder
+  odometry makes them less reliable.
 - **Benchmark table is stale.** `results/benchmark/summary_table.md` predates
   the MPPI and RPP tuning (MPPI shows as aborted at 8.2 s). Re-run the 3×3
   benchmark before quoting numbers.

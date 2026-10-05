@@ -12,14 +12,50 @@ The broader thesis proposal ("Autonomous Lawn Mower Operation for Large-Scale Fi
 
 Obstacle avoidance and autonomous docking are **out of scope** for this part of the project.
 
-## Running one controller and watching it in RViz
+## Control panel
+
+The easiest way to run the simulation:
+
+```bash
+ros2 run mower_sim control_panel
+```
+
+Pick the controller (RPP, MPPI, DWB) and the odometry source, then:
+
+- **Start** launches Gazebo, Nav2 and RViz if they are not running and sends
+  the coverage path; after Stop it reads **Resume** and continues the path from
+  where the robot is.
+- **Stop** halts the robot; the simulation stays up.
+- **Reset** shuts the simulation down and relaunches it with the current
+  selection, robot back at the start. A new controller or odometry choice
+  takes effect on Reset.
+
+Each run is recorded into `metrics/` (see below) and its headline numbers are
+shown in the panel when it ends. The simulation's own output goes to
+`~/.ros/log/mower_panel/sim.log`.
+
+## Odometry
+
+`odometry:=encoder` (the default) is dead reckoning: `wheel_odometry`
+integrates the drive wheels' joint angles, as a real robot's encoders would,
+and nothing corrects the drift (`map -> odom` stays the identity).
+`odometry:=ground_truth` gives perfect localization instead: odometry and
+`map -> odom` both come from Gazebo's true pose. Gazebo's diff drive plugin
+has an encoder mode of its own, but it reports the commanded rotation rather
+than the wheels' actual one (about 12 % too much in tight turns), so it is
+not used.
+
+Either way, metrics and the RViz trail use the true pose on
+`/ground_truth/pose`, so they measure where the robot really went.
+
+## Running one controller from the command line
 
 Each launch loads exactly one controller (`controller:=rpp|mppi|dwb`, one
 `FollowPath` plugin in its `config/nav2_<controller>_fair.yaml`).
 
 ```bash
 # terminal 1: Gazebo + Nav2 + RViz
-ros2 launch mower_sim nav2_sim.launch.py controller:=rpp
+ros2 launch mower_sim nav2_sim.launch.py controller:=rpp odometry:=encoder
 
 # terminal 2, once Nav2 reports "Managed nodes are active": send the coverage path
 ros2 run mower_sim run_mowing_path --ros-args -p use_sim_time:=true
@@ -37,7 +73,7 @@ is not reset between goals, so restart the launch for each new run.
 ## Controller benchmark
 
 `metrics_recorder` listens to `/coverage_path`, the FollowPath action status and
-the ground-truth robot pose (TF `map -> base_footprint`), and on goal completion
+the true robot pose (`/ground_truth/pose`), and on goal completion
 writes CSVs with:
 
 - cross-track error (RMS and max), separately for swaths and U-turns. Each turn
