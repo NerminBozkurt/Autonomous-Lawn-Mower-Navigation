@@ -2,8 +2,9 @@
 """
 Control panel for the mower simulation.
 
-Pick the controller (RPP, MPPI, DWB) and the odometry source (wheel encoders
-or ground truth), then:
+Pick the controller (RPP, MPPI, DWB, or switching between two of them: one
+for the rows, one for the turns) and the odometry source (wheel encoders or
+ground truth), then:
 - Start launches the simulation if it is not running and sends the coverage
   path; after Stop it resumes the path from where the robot is.
 - Stop cancels the path; the robot halts and the simulation stays up.
@@ -18,6 +19,7 @@ module only draws the window.
     ros2 run mower_sim control_panel
 """
 
+import math
 import threading
 import tkinter as tk
 from tkinter import ttk
@@ -28,7 +30,8 @@ POLL_MS = 200
 
 CONTROLLER_LABELS = (('rpp', 'Regulated Pure Pursuit (RPP)'),
                      ('mppi', 'Model Predictive Path Integral (MPPI)'),
-                     ('dwb', 'Dynamic Window (DWB)'))
+                     ('dwb', 'Dynamic Window (DWB)'),
+                     ('switching', 'Switching'))
 ODOMETRY_LABELS = (('encoder', 'Wheel encoders (dead reckoning)'),
                    ('ground_truth', 'Ground truth (perfect localization)'))
 
@@ -52,6 +55,8 @@ class ControlPanel:
         frame.grid(sticky='nsew')
 
         self.controller = tk.StringVar(value='rpp')
+        self.row_controller = tk.StringVar(value='RPP')
+        self.turn_controller = tk.StringVar(value='MPPI')
         self.odometry = tk.StringVar(value='encoder')
         self.gazebo_gui = tk.BooleanVar(value=True)
         self.rviz = tk.BooleanVar(value=True)
@@ -63,21 +68,32 @@ class ControlPanel:
             ttk.Radiobutton(config, text=label, value=value,
                             variable=self.controller).grid(
                 row=1 + i, column=0, sticky='w', padx=(12, 0))
-        ttk.Label(config, text='Odometry').grid(row=4, column=0, sticky='w',
+        pair = ttk.Frame(config)
+        pair.grid(row=5, column=0, sticky='w', padx=(32, 0))
+        self.pair_boxes = []
+        for col, (text, var) in enumerate((('rows', self.row_controller),
+                                           ('turns', self.turn_controller))):
+            ttk.Label(pair, text=text).grid(row=0, column=2 * col, sticky='w',
+                                            padx=(0 if col == 0 else 10, 4))
+            box = ttk.Combobox(pair, textvariable=var, width=6,
+                               state='readonly', values=ss.SWITCHING_PLUGINS)
+            box.grid(row=0, column=2 * col + 1)
+            self.pair_boxes.append(box)
+        ttk.Label(config, text='Odometry').grid(row=6, column=0, sticky='w',
                                                 pady=(8, 0))
         for i, (value, label) in enumerate(ODOMETRY_LABELS):
             ttk.Radiobutton(config, text=label, value=value,
                             variable=self.odometry).grid(
-                row=5 + i, column=0, sticky='w', padx=(12, 0))
+                row=7 + i, column=0, sticky='w', padx=(12, 0))
         windows = ttk.Frame(config)
-        windows.grid(row=7, column=0, sticky='w', pady=(8, 0))
+        windows.grid(row=9, column=0, sticky='w', pady=(8, 0))
         ttk.Label(windows, text='Windows').pack(side='left')
         ttk.Checkbutton(windows, text='Gazebo',
                         variable=self.gazebo_gui).pack(side='left', padx=8)
         ttk.Checkbutton(windows, text='RViz', variable=self.rviz).pack(
             side='left')
         self.pending = ttk.Label(config, foreground='#a15c00')
-        self.pending.grid(row=8, column=0, sticky='w', pady=(6, 0))
+        self.pending.grid(row=10, column=0, sticky='w', pady=(6, 0))
 
         buttons = ttk.Frame(frame, padding=(0, 10))
         buttons.grid(row=1, column=0, sticky='ew')
@@ -90,19 +106,21 @@ class ControlPanel:
         status = ttk.LabelFrame(frame, text='Status', padding=8)
         status.grid(row=2, column=0, sticky='ew')
         self.status_vars = {}
-        for row, name in enumerate(('State', 'Running', 'Remaining',
-                                    'Speed', 'Elapsed', 'Coverage')):
+        names = ('State', 'Running', 'Remaining', 'Speed', 'Elapsed',
+                 'Coverage', 'Odometry drift')
+        for row, name in enumerate(names):
             ttk.Label(status, text=name).grid(row=row, column=0, sticky='w')
             var = tk.StringVar(value='—')
-            ttk.Label(status, textvariable=var).grid(row=row, column=1,
-                                                     sticky='w', padx=(12, 0))
+            ttk.Label(status, textvariable=var, wraplength=240,
+                      justify='left').grid(row=row, column=1, sticky='w',
+                                           padx=(12, 0))
             self.status_vars[name] = var
         self.progress = ttk.Progressbar(status, length=320, maximum=100.0)
-        self.progress.grid(row=6, column=0, columnspan=2, sticky='ew',
-                           pady=(6, 0))
+        self.progress.grid(row=len(names), column=0, columnspan=2,
+                           sticky='ew', pady=(6, 0))
         self.message = ttk.Label(status, wraplength=320, justify='left')
-        self.message.grid(row=7, column=0, columnspan=2, sticky='w',
-                          pady=(6, 0))
+        self.message.grid(row=len(names) + 1, column=0, columnspan=2,
+                          sticky='w', pady=(6, 0))
 
         results = ttk.LabelFrame(frame, text='Last run', padding=8)
         results.grid(row=3, column=0, sticky='ew', pady=(10, 0))
@@ -122,8 +140,11 @@ class ControlPanel:
     # ------------------------------------------------------------ helpers
 
     def selection(self):
-        return (self.controller.get(), self.odometry.get(),
-                self.gazebo_gui.get(), self.rviz.get())
+        controller = self.controller.get()
+        row, turn = ((self.row_controller.get(), self.turn_controller.get())
+                     if controller == 'switching' else (None, None))
+        return (controller, self.odometry.get(), self.gazebo_gui.get(),
+                self.rviz.get(), row, turn)
 
     # ------------------------------------------------------------ buttons
 
@@ -185,13 +206,21 @@ class ControlPanel:
         self.start_btn.configure(text='Resume' if state == ss.STOPPED
                                  else 'Start')
 
+        switching = self.controller.get() == 'switching'
+        for box in self.pair_boxes:
+            box.configure(state='readonly' if switching else 'disabled')
+
         config = snap['config']
         if config is None:
             running = '—'
             self.pending.configure(text='')
         else:
-            controller, odometry = config[:2]
-            running = f'{controller.upper()}, {odometry.replace("_", " ")} odometry'
+            controller, odometry, _, _, row, turn = config
+            name = (f'switching (rows {row}, turns {turn})'
+                    if controller == 'switching' else controller.upper())
+            running = f'{name}, {odometry.replace("_", " ")} odometry'
+            if controller == 'switching' and snap['active_controller']:
+                running += f'; now {snap["active_controller"]}'
             changed = tuple(config) != self.selection()
             self.pending.configure(
                 text='Selection differs from the running simulation; '
@@ -207,7 +236,12 @@ class ControlPanel:
         self.status_vars['Elapsed'].set(
             _fmt(snap['elapsed'], 's', 1) if config else '—')
         self.status_vars['Coverage'].set(
-            _fmt(snap['coverage'], '% of the field', 1))
+            _fmt(snap['coverage'], '% of the swath area', 1))
+        error = snap['odometry_error']
+        self.status_vars['Odometry drift'].set(
+            '—' if error is None else
+            f'{100.0 * error[0]:.1f} cm (max {100.0 * error[1]:.1f} cm), '
+            f'yaw {math.degrees(error[2]):+.1f}°')
         self.progress['value'] = 0.0 if left is None else \
             max(0.0, min(100.0, 100.0 * (1.0 - left / total)))
         self.message.configure(text=snap['message'])

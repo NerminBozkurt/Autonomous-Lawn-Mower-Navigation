@@ -182,6 +182,91 @@ def angular_smoothness(times, omegas, rate=20.0, jerk_threshold=None):
     return out
 
 
+def transition_stats(times, arc, cte, boundaries, nav, pre=1.0, post=3.0):
+    """
+    Tracking and command behaviour around each row/turn boundary.
+
+    times, arc and cte are the pose samples (time, arc length along the
+    reference, cross-track error); boundaries the arc lengths where a row
+    meets a turn; nav the controller's raw output as (time, v, w) samples,
+    i.e. /cmd_vel_nav, before the velocity smoother hides any discontinuity.
+
+    A boundary is crossed at the first sample with arc >= boundary; its
+    window runs from pre seconds before to post seconds after. Per window:
+    the largest |cross-track error| and the largest step in v and in w
+    between consecutive nav samples. Returned: the number of boundaries
+    crossed, the mean and max of the per-window |cte| maxima, and the max
+    of the v and w steps over all windows. Every configuration is scored at
+    the same places, whether or not it switches controller there.
+    """
+    t = np.asarray(times, dtype=float)
+    s = np.asarray(arc, dtype=float)
+    e = np.abs(np.asarray(cte, dtype=float))
+    nan = float('nan')
+    out = {'boundaries': 0, 'trans_cte_mean': nan, 'trans_cte_max': nan,
+           'trans_nav_dv_max': nan, 'trans_nav_dw_max': nan}
+    if len(t) == 0:
+        return out
+    nav = np.asarray(nav, dtype=float).reshape(-1, 3)
+    cte_max, dv_max, dw_max = [], [], []
+    for b in boundaries:
+        crossed = np.nonzero(s >= b)[0]
+        if crossed.size == 0:
+            continue
+        tb = t[crossed[0]]
+        in_window = (t >= tb - pre) & (t <= tb + post)
+        cte_max.append(float(e[in_window].max()))
+        w = nav[(nav[:, 0] >= tb - pre) & (nav[:, 0] <= tb + post)]
+        if len(w) >= 2:
+            dv_max.append(float(np.abs(np.diff(w[:, 1])).max()))
+            dw_max.append(float(np.abs(np.diff(w[:, 2])).max()))
+    out['boundaries'] = len(cte_max)
+    if cte_max:
+        out['trans_cte_mean'] = float(np.mean(cte_max))
+        out['trans_cte_max'] = float(np.max(cte_max))
+    if dv_max:
+        out['trans_nav_dv_max'] = float(np.max(dv_max))
+        out['trans_nav_dw_max'] = float(np.max(dw_max))
+    return out
+
+
+def switch_stats(nav, before=0.1, after=0.5):
+    """
+    Command discontinuity at every controller switch.
+
+    nav is the controller's raw output as (time, v, w, controller) samples.
+    A switch is a sample whose controller differs from the previous one; its
+    window runs from `before` seconds before to `after` seconds after it, to
+    catch both the step at the handover and the new controller's first few
+    commands. Returned: the number of switches and the largest step in v and
+    in w between consecutive samples in any window. Unlike transition_stats,
+    this is measured where the switch actually happens, wherever turn_lead
+    and turn_lag put it.
+    """
+    nan = float('nan')
+    out = {'switches': 0, 'switch_dv_max': nan, 'switch_dw_max': nan}
+    if len(nav) < 2:
+        return out
+    t = np.array([n[0] for n in nav], dtype=float)
+    v = np.array([n[1] for n in nav], dtype=float)
+    w = np.array([n[2] for n in nav], dtype=float)
+    c = [n[3] for n in nav]
+    dv, dw = np.abs(np.diff(v)), np.abs(np.diff(w))
+    dv_max, dw_max = [], []
+    for i in range(1, len(c)):
+        if c[i] == c[i - 1] or not c[i - 1]:
+            continue
+        # Steps j -> j + 1 with both samples inside the window.
+        inside = (t[:-1] >= t[i] - before) & (t[1:] <= t[i] + after)
+        dv_max.append(float(dv[inside].max()))
+        dw_max.append(float(dw[inside].max()))
+    out['switches'] = len(dv_max)
+    if dv_max:
+        out['switch_dv_max'] = max(dv_max)
+        out['switch_dw_max'] = max(dw_max)
+    return out
+
+
 def _strip_mask(px, py, a, b, half_width, caps):
     """Cells within half_width of segment a-b; with caps=False, a flat strip."""
     dx, dy = b[0] - a[0], b[1] - a[1]

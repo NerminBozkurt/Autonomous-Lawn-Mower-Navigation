@@ -1,0 +1,29 @@
+[INFO] [1791215747.863274414] [mowing_path_client]: Controller schedule: RPP from 0.00 m, MPPI from 5.00 m, RPP from 6.18 m, MPPI from 11.18 m, RPP from 12.35 m
+[INFO] [1791215747.868204937] [mowing_path_client]: Waiting for FollowPath action server...
+[INFO] [1791215747.868610628] [mowing_path_client]: Sending coverage path: 349 poses
+[INFO] [1791215747.872080258] [mowing_path_client]: Distance to goal: 17.35 m, speed: 1.00 m/s, controller: RPP
+[INFO] [1791215748.872109882] [mowing_path_client]: Distance to goal: 16.90 m, speed: 1.00 m/s, controller: RPP
+[INFO] [1791215749.872155379] [mowing_path_client]: Distance to goal: 15.90 m, speed: 1.00 m/s, controller: RPP
+[INFO] [1791215750.905426392] [mowing_path_client]: Distance to goal: 14.85 m, speed: 1.00 m/s, controller: RPP
+[INFO] [1791215751.905693583] [mowing_path_client]: Distance to goal: 13.85 m, speed: 1.00 m/s, controller: RPP
+[INFO] [1791215752.939064517] [mowing_path_client]: Distance to goal: 12.85 m, speed: 1.00 m/s, controller: RPP
+[INFO] [1791215753.939937675] [mowing_path_client]: Distance to goal: 12.16 m, speed: 0.23 m/s, controller: MPPI
+[INFO] [1791215754.973309256] [mowing_path_client]: Distance to goal: 11.96 m, speed: 0.15 m/s, controller: MPPI
+[INFO] [1791215756.006710358] [mowing_path_client]: Distance to goal: 11.77 m, speed: 0.23 m/s, controller: MPPI
+[INFO] [1791215757.040056596] [mowing_path_client]: Distance to goal: 11.47 m, speed: 0.36 m/s, controller: MPPI
+[INFO] [1791215758.072073178] [mowing_path_client]: Distance to goal: 10.93 m, speed: 1.00 m/s, controller: RPP
+[INFO] [1791215759.072258134] [mowing_path_client]: Distance to goal: 9.93 m, speed: 1.00 m/s, controller: RPP
+[INFO] [1791215760.105627894] [mowing_path_client]: Distance to goal: 8.88 m, speed: 1.00 m/s, controller: RPP
+[INFO] [1791215761.105690559] [mowing_path_client]: Distance to goal: 7.93 m, speed: 1.00 m/s, controller: RPP
+[INFO] [1791215762.139105552] [mowing_path_client]: Distance to goal: 6.88 m, speed: 1.00 m/s, controller: RPP
+[INFO] [1791215763.139939897] [mowing_path_client]: Distance to goal: 6.08 m, speed: 0.16 m/s, controller: MPPI
+[INFO] [1791215764.173442474] [mowing_path_client]: Distance to goal: 5.83 m, speed: 0.15 m/s, controller: MPPI
+[INFO] [1791215765.206475098] [mowing_path_client]: Distance to goal: 5.69 m, speed: 0.14 m/s, controller: MPPI
+[INFO] [1791215766.206479037] [mowing_path_client]: Distance to goal: 5.54 m, speed: 0.19 m/s, controller: MPPI
+[INFO] [1791215767.239770968] [mowing_path_client]: Distance to goal: 5.29 m, speed: 0.24 m/s, controller: MPPI
+[INFO] [1791215768.239792454] [mowing_path_client]: Distance to goal: 5.00 m, speed: 0.42 m/s, controller: MPPI
+[INFO] [1791215769.272056207] [mowing_path_client]: Distance to goal: 4.20 m, speed: 1.00 m/s, controller: RPP
+[INFO] [1791215770.272125694] [mowing_path_client]: Distance to goal: 3.20 m, speed: 1.00 m/s, controller: RPP
+[INFO] [1791215771.305374196] [mowing_path_client]: Distance to goal: 2.15 m, speed: 1.00 m/s, controller: RPP
+[INFO] [1791215772.338758939] [mowing_path_client]: Distance to goal: 1.15 m, speed: 1.00 m/s, controller: RPP
+[INFO] [1791215773.272665051] [mowing_path_client]: Coverage path completed

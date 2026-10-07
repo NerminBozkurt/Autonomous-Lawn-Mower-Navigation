@@ -1,0 +1,6 @@
+run_label,controller,result,completion_time_s,path_length_ref_m,path_length_robot_m,samples,cte_rms_all,cte_max_all,cte_rms_swath,cte_max_swath,cte_rms_turn,cte_max_turn,cmd_ang_acc_rms,cmd_ang_acc_max,cmd_ang_jerk_rms,cmd_ang_jerk_max,cmd_ang_jerk_events,odom_ang_acc_rms,odom_ang_acc_max,odom_ang_jerk_rms,odom_ang_jerk_max,odom_ang_jerk_events,coverage_pct
+run,rpp,succeeded,18.8400,17.3545,14.7971,314,0.1631,0.3709,0.1307,0.2699,0.2029,0.3709,0.4272,1.0000,5.6721,32.0000,21,0.8951,7.5833,24.9482,278.8136,79,91.0500
+run,rpp,aborted,31.8000,17.3545,11.4802,530,0.0953,0.2034,0.0337,0.0639,0.1108,0.2034,0.3207,1.1500,4.3021,23.2573,30,0.4246,2.2622,10.6126,57.0377,107,65.7393
+rpp_encoder_20261005-140208,rpp,succeeded,22.6100,17.3545,16.9247,377,0.0488,0.1349,0.0240,0.0752,0.0646,0.1349,0.4348,1.1500,3.2608,27.8962,14,0.4754,2.2508,6.6558,41.1458,51,97.0643
+mppi_encoder_20261005-140328,mppi,succeeded,29.8700,17.3545,17.0002,498,0.0233,0.0471,0.0209,0.0360,0.0251,0.0471,0.3363,1.0000,3.1475,22.5623,7,0.4462,2.3333,7.3104,50.1208,77,98.4321
+dwb_encoder_20261005-140432,dwb,succeeded,23.7700,17.3545,17.1222,396,0.0439,0.0977,0.0477,0.0977,0.0396,0.0811,0.5213,1.0000,8.1398,32.0000,75,0.5575,2.3448,9.9523,37.9344,135,95.7929

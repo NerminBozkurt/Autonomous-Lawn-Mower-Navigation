@@ -1,0 +1,3 @@
+[INFO] [1791204874.415143633] [metrics_recorder]: Metrics recorder "dwb-only_run1" waiting for a FollowPath goal; output -> /home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/results/comparison/raw
+[INFO] [1791204897.318788271] [metrics_recorder]: FollowPath goal executing, recording
+[INFO] [1791204921.194560825] [metrics_recorder]: Run succeeded in 23.8 s: CTE RMS swath 0.022 m, turn 0.023 m, coverage 97.9 %
