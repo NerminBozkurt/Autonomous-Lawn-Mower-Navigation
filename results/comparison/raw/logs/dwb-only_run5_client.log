@@ -1,0 +1,28 @@
+[INFO] [1791215699.728441375] [mowing_path_client]: Controller schedule: DWB from 0.00 m
+[INFO] [1791215699.733332417] [mowing_path_client]: Waiting for FollowPath action server...
+[INFO] [1791215699.733749231] [mowing_path_client]: Sending coverage path: 349 poses
+[INFO] [1791215699.739019459] [mowing_path_client]: Distance to goal: 17.35 m, speed: 0.28 m/s, controller: DWB
+[INFO] [1791215700.771794327] [mowing_path_client]: Distance to goal: 16.85 m, speed: 1.00 m/s, controller: DWB
+[INFO] [1791215701.805001951] [mowing_path_client]: Distance to goal: 15.90 m, speed: 0.93 m/s, controller: DWB
+[INFO] [1791215702.805472704] [mowing_path_client]: Distance to goal: 15.00 m, speed: 0.97 m/s, controller: DWB
+[INFO] [1791215703.838473292] [mowing_path_client]: Distance to goal: 14.00 m, speed: 0.83 m/s, controller: DWB
+[INFO] [1791215704.871720693] [mowing_path_client]: Distance to goal: 13.05 m, speed: 0.97 m/s, controller: DWB
+[INFO] [1791215705.871769154] [mowing_path_client]: Distance to goal: 12.26 m, speed: 0.27 m/s, controller: DWB
+[INFO] [1791215706.872080519] [mowing_path_client]: Distance to goal: 12.01 m, speed: 0.45 m/s, controller: DWB
+[INFO] [1791215707.905212040] [mowing_path_client]: Distance to goal: 11.67 m, speed: 0.25 m/s, controller: DWB
+[INFO] [1791215708.905230291] [mowing_path_client]: Distance to goal: 11.37 m, speed: 0.31 m/s, controller: DWB
+[INFO] [1791215709.938664203] [mowing_path_client]: Distance to goal: 10.73 m, speed: 1.00 m/s, controller: DWB
+[INFO] [1791215710.972038232] [mowing_path_client]: Distance to goal: 9.78 m, speed: 0.90 m/s, controller: DWB
+[INFO] [1791215712.005117653] [mowing_path_client]: Distance to goal: 8.83 m, speed: 0.84 m/s, controller: DWB
+[INFO] [1791215713.005235431] [mowing_path_client]: Distance to goal: 7.93 m, speed: 0.85 m/s, controller: DWB
+[INFO] [1791215714.038689888] [mowing_path_client]: Distance to goal: 6.98 m, speed: 0.93 m/s, controller: DWB
+[INFO] [1791215715.038763891] [mowing_path_client]: Distance to goal: 6.13 m, speed: 0.37 m/s, controller: DWB
+[INFO] [1791215716.071864982] [mowing_path_client]: Distance to goal: 5.74 m, speed: 0.45 m/s, controller: DWB
+[INFO] [1791215717.071914808] [mowing_path_client]: Distance to goal: 5.39 m, speed: 0.30 m/s, controller: DWB
+[INFO] [1791215718.105092724] [mowing_path_client]: Distance to goal: 5.00 m, speed: 0.91 m/s, controller: DWB
+[INFO] [1791215719.105118744] [mowing_path_client]: Distance to goal: 4.10 m, speed: 0.90 m/s, controller: DWB
+[INFO] [1791215720.138359878] [mowing_path_client]: Distance to goal: 3.15 m, speed: 0.92 m/s, controller: DWB
+[INFO] [1791215721.138414824] [mowing_path_client]: Distance to goal: 2.20 m, speed: 0.89 m/s, controller: DWB
+[INFO] [1791215722.171791250] [mowing_path_client]: Distance to goal: 1.30 m, speed: 0.96 m/s, controller: DWB
+[INFO] [1791215723.204993077] [mowing_path_client]: Distance to goal: 0.30 m, speed: 0.43 m/s, controller: DWB
+[INFO] [1791215723.239068682] [mowing_path_client]: Coverage path completed

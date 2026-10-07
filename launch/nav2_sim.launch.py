@@ -13,7 +13,7 @@ from ament_index_python.packages import get_package_share_directory
 
 def launch_setup(context, *args, **kwargs):
     controller = LaunchConfiguration('controller').perform(context)
-    valid = ('rpp', 'mppi', 'dwb')
+    valid = ('rpp', 'mppi', 'dwb', 'switching')
     if controller not in valid:
         raise RuntimeError(f"controller must be one of {valid}, got '{controller}'")
     odometry = LaunchConfiguration('odometry').perform(context)
@@ -28,7 +28,11 @@ def launch_setup(context, *args, **kwargs):
 
     robot_name = 'mower'
 
-    nav2_params_file = os.path.join(pkg_share, 'config', f'nav2_{controller}_fair.yaml')
+    # switching loads all three controllers (plugin ids RPP, MPPI, DWB); the
+    # FollowPath goals then pick one, see mower_sim/path_executor.py.
+    params_name = ('nav2_switching.yaml' if controller == 'switching'
+                   else f'nav2_{controller}_fair.yaml')
+    nav2_params_file = os.path.join(pkg_share, 'config', params_name)
     map_yaml_file = os.path.join(pkg_share, 'maps', 'empty_map.yaml')
     rviz_config_file = os.path.join(pkg_share, 'rviz', 'mower_view.rviz')
     nav2_bringup_launch = os.path.join(
@@ -154,7 +158,8 @@ def launch_setup(context, *args, **kwargs):
         parameters=[{'use_sim_time': True}],
     )
 
-    # Ground-truth track of the robot, drawn in RViz next to /coverage_path.
+    # True and estimated tracks of the robot and the odometry drift between
+    # them, drawn in RViz next to /coverage_path.
     robot_trail = Node(
         package='mower_sim',
         executable='robot_trail_publisher',
@@ -186,7 +191,8 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'controller',
             default_value='rpp',
-            description="Which controller to use: 'rpp', 'mppi', or 'dwb'",
+            description="Which controller to use: 'rpp', 'mppi', 'dwb', or "
+                        "'switching' (all three loaded, picked per goal)",
         ),
         DeclareLaunchArgument(
             'odometry',

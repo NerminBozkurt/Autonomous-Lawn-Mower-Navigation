@@ -15,9 +15,21 @@ did).
 Samples within turn_margin metres of path from a U-turn count as turn
 samples; see path_metrics.turn_zones for why.
 
+A run may span several FollowPath goals: a switching configuration preempts
+the goal at every controller change (see path_executor), which aborts the
+old goal. The run therefore continues while another goal is accepted or
+executing, and ends with the outcome of the last one. The active controller
+(/active_controller) is logged per sample, and the controller's raw output
+(/cmd_vel_nav, before the velocity smoother) feeds the transition metrics
+taken around every row/turn boundary (path_metrics.transition_stats).
+
 On finish it writes, into output_dir:
 - <run_label>_trajectory.csv: one row per pose sample, with its cross-track
-  error and whether it was matched to a swath or a turn zone.
+  error, whether it was matched to a swath or a turn zone, and the
+  controller driving at the time.
+- <run_label>_commands.csv: the controller's raw output (/cmd_vel_nav) and
+  the smoothed command sent to the robot (/cmd_vel), with the controller
+  driving at the time; for plotting what happens at a controller switch.
 - <run_label>_reference.csv: the reference path, the geometric label of
   each segment and the zone it is scored in.
 - summary.csv: one row per run, appended, with every metric (see
@@ -31,11 +43,14 @@ import os
 from action_msgs.msg import GoalStatus, GoalStatusArray
 from geometry_msgs.msg import PoseStamped, Twist
 from mower_sim import path_metrics as pm
+from mower_sim.path_segments import segments
 from nav_msgs.msg import Odometry, Path
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
+from rclpy.qos import DurabilityPolicy, QoSProfile
 from rclpy.time import Time
+from std_msgs.msg import String
 
 TERMINAL = {
     GoalStatus.STATUS_SUCCEEDED: 'succeeded',
@@ -52,7 +67,12 @@ SUMMARY_FIELDS = [
     'cmd_ang_jerk_max', 'cmd_ang_jerk_events',
     'odom_ang_acc_rms', 'odom_ang_acc_max', 'odom_ang_jerk_rms',
     'odom_ang_jerk_max', 'odom_ang_jerk_events',
+    'nav_ang_acc_rms', 'nav_ang_acc_max', 'nav_ang_jerk_rms',
+    'nav_ang_jerk_max', 'nav_ang_jerk_events',
     'coverage_pct',
+    'switches', 'switch_dv_max', 'switch_dw_max',
+    'boundaries', 'trans_cte_mean', 'trans_cte_max',
+    'trans_nav_dv_max', 'trans_nav_dw_max',
 ]
 
 
@@ -93,6 +113,9 @@ class MetricsRecorder(Node):
         self.poses = []      # (t, x, y, yaw)
         self.cmd_w = []      # (t, wz)
         self.odom_w = []     # (t, wz)
+        self.nav = []        # (t, v, wz, controller) of /cmd_vel_nav
+        self.cmd = []        # (t, v, wz) of /cmd_vel
+        self.controller = ''  # active controller, from /active_controller
         self.true_pose = None
 
         self.create_subscription(PoseStamped, p('pose_topic').value,
@@ -103,6 +126,10 @@ class MetricsRecorder(Node):
         self.create_subscription(GoalStatusArray, p('status_topic').value,
                                  self.status_callback, 10)
         self.create_subscription(Twist, '/cmd_vel', self.cmd_callback, 50)
+        self.create_subscription(Twist, '/cmd_vel_nav', self.nav_callback, 50)
+        self.create_subscription(
+            String, '/active_controller', self.controller_callback,
+            QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL))
         self.create_subscription(Odometry, '/odom', self.odom_callback, 50)
         self.sample_period = 1.0 / p('sample_rate').value
 
@@ -123,6 +150,9 @@ class MetricsRecorder(Node):
     def status_callback(self, msg):
         if self.done:
             return
+        live = [bytes(st.goal_info.goal_id.uuid) for st in msg.status_list
+                if st.status in (GoalStatus.STATUS_ACCEPTED,
+                                 GoalStatus.STATUS_EXECUTING)]
         for status in msg.status_list:
             gid = bytes(status.goal_info.goal_id.uuid)
             if self.goal_id is None and status.status == GoalStatus.STATUS_EXECUTING:
@@ -132,15 +162,29 @@ class MetricsRecorder(Node):
                 self.t_start = self._now()
                 self.get_logger().info('FollowPath goal executing, recording')
             elif gid == self.goal_id and status.status in TERMINAL:
+                newer = [g for g in live if g != gid]
+                if newer:
+                    # Preempted by a controller switch: follow the new goal.
+                    self.goal_id = newer[0]
+                    continue
                 self.finish(TERMINAL[status.status])
                 return
 
     def pose_callback(self, msg):
         self.true_pose = msg.pose
 
+    def nav_callback(self, msg):
+        if self.recording:
+            self.nav.append((self._now(), msg.linear.x, msg.angular.z,
+                             self.controller))
+
+    def controller_callback(self, msg):
+        self.controller = msg.data
+
     def cmd_callback(self, msg):
         if self.recording:
             self.cmd_w.append((self._now(), msg.angular.z))
+            self.cmd.append((self._now(), msg.linear.x, msg.angular.z))
 
     def odom_callback(self, msg):
         if not self.recording:
@@ -158,7 +202,8 @@ class MetricsRecorder(Node):
                 throttle_duration_sec=2.0)
             return
         pos = self.true_pose.position
-        self.poses.append((t, pos.x, pos.y, _yaw(self.true_pose.orientation)))
+        self.poses.append((t, pos.x, pos.y, _yaw(self.true_pose.orientation),
+                           self.controller))
 
     def finish(self, result):
         self.done = True
@@ -175,9 +220,10 @@ class MetricsRecorder(Node):
         zones = pm.turn_zones(self.ref_xy, labels, p('turn_margin').value)
         tracker = pm.CrossTrackTracker(self.ref_xy)
         rows = []
-        for t, x, y, yaw in self.poses:
+        for t, x, y, yaw, controller in self.poses:
             i, err, s = tracker.project(x, y)
-            rows.append((t - self.t_start, x, y, yaw, err, s, zones[i]))
+            rows.append((t - self.t_start, x, y, yaw, err, s, zones[i],
+                         controller))
 
         thr = p('jerk_threshold').value
         summary = {
@@ -192,9 +238,17 @@ class MetricsRecorder(Node):
                 self.ref_xy, labels, [r[1:3] for r in rows],
                 p('cutting_width').value),
         }
+        summary.update(pm.switch_stats(self.nav))
+        boundaries = [s0 for _, s0, _ in
+                      segments(self.ref_xy, p('min_swath_length').value)[1:]]
+        summary.update(pm.transition_stats(
+            [r[0] + self.t_start for r in rows], [r[5] for r in rows],
+            [r[4] for r in rows], boundaries, [n[:3] for n in self.nav]))
         summary.update(pm.cross_track_stats([r[4] for r in rows],
                                             [r[6] for r in rows]))
-        for prefix, series in (('cmd', self.cmd_w), ('odom', self.odom_w)):
+        nav_w = [(n[0], n[2]) for n in self.nav]
+        for prefix, series in (('cmd', self.cmd_w), ('odom', self.odom_w),
+                               ('nav', nav_w)):
             stats = pm.angular_smoothness([s[0] for s in series],
                                           [s[1] for s in series],
                                           jerk_threshold=thr)
@@ -213,10 +267,21 @@ class MetricsRecorder(Node):
 
         with open(f'{base}_trajectory.csv', 'w', newline='') as f:
             w = csv.writer(f)
-            w.writerow(['t', 'x', 'y', 'yaw', 'cte', 's', 'segment'])
+            w.writerow(['t', 'x', 'y', 'yaw', 'cte', 's', 'segment',
+                        'controller'])
             for r in rows:
                 w.writerow([f'{r[0]:.3f}', f'{r[1]:.4f}', f'{r[2]:.4f}',
-                            f'{r[3]:.4f}', f'{r[4]:.4f}', f'{r[5]:.3f}', r[6]])
+                            f'{r[3]:.4f}', f'{r[4]:.4f}', f'{r[5]:.3f}', r[6],
+                            r[7]])
+
+        with open(f'{base}_commands.csv', 'w', newline='') as f:
+            w = csv.writer(f)
+            w.writerow(['t', 'source', 'v', 'w', 'controller'])
+            series = [(t, 'nav', v, wz, c) for t, v, wz, c in self.nav]
+            series += [(t, 'cmd', v, wz, '') for t, v, wz in self.cmd]
+            for t, src, v, wz, c in sorted(series, key=lambda r: r[0]):
+                w.writerow([f'{t - self.t_start:.3f}', src, f'{v:.4f}',
+                            f'{wz:.4f}', c])
 
         with open(f'{base}_reference.csv', 'w', newline='') as f:
             w = csv.writer(f)

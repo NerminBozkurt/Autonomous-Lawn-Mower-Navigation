@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Track live mowing coverage and draw the field in RViz.
+Track live mowing coverage and draw the mowed area in RViz.
 
 Listens to /coverage_path (which defines the field unless field_polygon is
 set) and to the true robot pose on /ground_truth/pose, and keeps a
 CoverageGrid of the area swept so far. It publishes:
 - /coverage_percent (std_msgs/Float32): share of the field mowed, in %;
-- /coverage_markers (visualization_msgs/MarkerArray): the field boundary,
-  the mowed area and a coverage label.
+- /coverage_markers (visualization_msgs/MarkerArray): the mowed area and a
+  coverage label.
 
 Coverage accumulates for as long as the node runs, i.e. one simulation
 launch; ~/clear (std_srvs/Empty) starts it over. A coverage path with a
@@ -116,12 +116,6 @@ class CoverageMonitor(Node):
             m.pose.orientation.w = 1.0
             return m
 
-        boundary = marker('field_boundary', Marker.LINE_STRIP)
-        boundary.scale.x = 0.04
-        boundary.color = _color(1.0, 0.45, 0.0, 1.0)
-        corners = self.grid.boundary + self.grid.boundary[:1]
-        boundary.points = [Point(x=x, y=y, z=0.02) for x, y in corners]
-
         mowed = marker('mowed_area', Marker.CUBE_LIST)
         xs, ys, size = self.grid.swept_cells(self.draw_cell)
         mowed.scale.x = mowed.scale.y = size
@@ -140,7 +134,7 @@ class CoverageMonitor(Node):
         label.color = _color(1.0, 1.0, 1.0, 1.0)
         label.text = f'Coverage {percent:.1f} %'
 
-        self.marker_pub.publish(MarkerArray(markers=[boundary, mowed, label]))
+        self.marker_pub.publish(MarkerArray(markers=[mowed, label]))
 
 
 def main():

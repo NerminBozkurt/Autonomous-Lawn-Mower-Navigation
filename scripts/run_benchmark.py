@@ -6,6 +6,18 @@ Each run is a fresh, headless simulation:
   1. ros2 launch mower_sim nav2_sim.launch.py controller:=<c> headless:=true
   2. ros2 run mower_sim metrics_recorder   (writes the CSVs)
   3. ros2 run mower_sim run_mowing_path    (sends the path to FollowPath)
+
+A configuration is one of:
+  rpp, mppi, dwb          that controller alone, from its nav2_<c>_fair.yaml;
+  rpp-only, mppi-only,    that controller alone, from nav2_switching.yaml
+  dwb-only                (all three loaded, only this one ever driving);
+  switching-ROW-TURN      nav2_switching.yaml, controller ROW on the rows and
+                          TURN on the turns, e.g. switching-RPP-MPPI; append
+                          :LEAD:LAG to hand over LEAD metres before and back
+                          LAG metres after each turn (switching-RPP-MPPI:0.5:0.5),
+                          otherwise --turn-lead and --turn-lag apply.
+The *-only and switching configurations run on the same parameter file, so
+they differ only in which controller drives where.
 The run ends when the recorder exits (goal finished) or on timeout, then the
 whole launch is torn down so the next run starts from the same state.
 
@@ -47,7 +59,30 @@ def _kill_stray_gzserver():
         time.sleep(3.0)
 
 
-def run_once(controller, label, out_dir, timeout, log_dir, launch_args):
+def parse_config(name, turn_lead=0.0, turn_lag=0.0):
+    """Return (launch controller, extra run_mowing_path arguments)."""
+    if ':' in name:
+        name, lead, lag = name.split(':')
+        turn_lead, turn_lag = float(lead), float(lag)
+    if name in ('rpp', 'mppi', 'dwb'):
+        return name, []
+    plugins = ('RPP', 'MPPI', 'DWB')
+    if name.endswith('-only') and name[:-5].upper() in plugins:
+        return 'switching', ['-p', f'controller_id:={name[:-5].upper()}']
+    parts = name.split('-')
+    if len(parts) == 3 and parts[0] == 'switching' and \
+            parts[1].upper() in plugins and parts[2].upper() in plugins:
+        return 'switching', ['-p', f'row_controller:={parts[1].upper()}',
+                             '-p', f'turn_controller:={parts[2].upper()}',
+                             '-p', f'turn_lead:={turn_lead}',
+                             '-p', f'turn_lag:={turn_lag}']
+    raise ValueError(f'unknown configuration {name!r}')
+
+
+def run_once(config, label, out_dir, timeout, log_dir, launch_args,
+             turn_lead=0.0, turn_lag=0.0):
+    controller, client_args = parse_config(config, turn_lead, turn_lag)
+
     def spawn(cmd, name):
         log = open(os.path.join(log_dir, f'{label}_{name}.log'), 'w')
         return subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT,
@@ -62,7 +97,7 @@ def run_once(controller, label, out_dir, timeout, log_dir, launch_args):
                       '-p', 'use_sim_time:=true',
                       '-p', f'output_dir:={out_dir}',
                       '-p', f'run_label:={label}',
-                      '-p', f'controller:={controller}'], 'recorder')
+                      '-p', f'controller:={config}'], 'recorder')
     start = time.monotonic()
     # controller_server's action server appears before the node is
     # activated, and a goal sent in that gap is rejected; wait for Nav2's
@@ -91,7 +126,8 @@ def run_once(controller, label, out_dir, timeout, log_dir, launch_args):
         return None, time.monotonic() - start
     if sim.poll() is None and time.monotonic() - start < timeout:
         client = spawn(['ros2', 'run', 'mower_sim', 'run_mowing_path',
-                        '--ros-args', '-p', 'use_sim_time:=true'], 'client')
+                        '--ros-args', '-p', 'use_sim_time:=true',
+                        *client_args], 'client')
 
     ok = client is not None
     if ok:
@@ -109,7 +145,14 @@ def run_once(controller, label, out_dir, timeout, log_dir, launch_args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
     parser.add_argument('--controllers', nargs='+',
-                        default=['rpp', 'mppi', 'dwb'])
+                        default=['rpp', 'mppi', 'dwb'],
+                        help='configurations to run, see above')
+    parser.add_argument('--turn-lead', type=float, default=0.0,
+                        help='switching: hand over this many metres before '
+                             'each turn')
+    parser.add_argument('--turn-lag', type=float, default=0.0,
+                        help='switching: hand back this many metres after '
+                             'each turn')
     parser.add_argument('--runs', type=int, default=3)
     parser.add_argument('--output-dir', default='results/benchmark/raw')
     parser.add_argument('--timeout', type=float, default=300.0,
@@ -119,7 +162,13 @@ def main():
                              'a run that starts is never repeated')
     parser.add_argument('--launch-args', nargs='*', default=[],
                         help='extra name:=value arguments for nav2_sim.launch.py')
+    parser.add_argument('--skip-existing', action='store_true',
+                        help='skip runs whose trajectory is already in '
+                             'output-dir, to continue an interrupted batch')
     args = parser.parse_args()
+
+    for config in args.controllers:
+        parse_config(config)   # fail before any simulation starts
 
     out_dir = os.path.abspath(args.output_dir)
     log_dir = os.path.join(out_dir, 'logs')
@@ -128,10 +177,16 @@ def main():
     for run in range(1, args.runs + 1):
         for controller in args.controllers:
             label = f'{controller}_run{run}'
+            if args.skip_existing and os.path.exists(
+                    os.path.join(out_dir, f'{label}_trajectory.csv')):
+                print(f'[benchmark] {label} already done, skipped',
+                      flush=True)
+                continue
             print(f'[benchmark] {label} ...', flush=True)
             for _ in range(args.retries + 1):
                 ok, wall = run_once(controller, label, out_dir, args.timeout,
-                                    log_dir, args.launch_args)
+                                    log_dir, args.launch_args,
+                                    args.turn_lead, args.turn_lag)
                 if ok is not None:
                     break
             status = {True: 'done', False: 'TIMED OUT (no summary row written)',

@@ -1,0 +1,3 @@
+[INFO] [1791205431.537521858] [metrics_recorder]: Metrics recorder "switching-RPP-MPPI_run3" waiting for a FollowPath goal; output -> /home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/results/comparison/raw
+[INFO] [1791205454.754337258] [metrics_recorder]: FollowPath goal executing, recording
+[INFO] [1791205480.194641251] [metrics_recorder]: Run succeeded in 25.3 s: CTE RMS swath 0.010 m, turn 0.022 m, coverage 98.9 %

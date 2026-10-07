@@ -1,0 +1,449 @@
+[INFO] [launch]: All log files can be found below /home/nermin/.ros/log/2026-10-05-17-55-24-548236-Nermin-7494
+[INFO] [launch]: Default logging verbosity is set to INFO
+
+[mower_sim] Controller: SWITCHING
+[mower_sim] Odometry: ground_truth
+[mower_sim] Params: /home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/install/mower_sim/share/mower_sim/config/nav2_switching.yaml
+
+[INFO] [gzserver-1]: process started with pid [7512]
+[INFO] [robot_state_publisher-2]: process started with pid [7514]
+[INFO] [spawn_entity.py-3]: process started with pid [7516]
+[INFO] [ground_truth_tf_publisher-4]: process started with pid [7518]
+[INFO] [robot_trail_publisher-5]: process started with pid [7520]
+[INFO] [coverage_monitor-6]: process started with pid [7522]
+[robot_state_publisher-2] [INFO] [1791215724.667586627] [robot_state_publisher]: got segment base_footprint
+[robot_state_publisher-2] [INFO] [1791215724.667637751] [robot_state_publisher]: got segment base_link
+[robot_state_publisher-2] [INFO] [1791215724.667644476] [robot_state_publisher]: got segment base_scan
+[robot_state_publisher-2] [INFO] [1791215724.667648447] [robot_state_publisher]: got segment front_left_caster
+[robot_state_publisher-2] [INFO] [1791215724.667652488] [robot_state_publisher]: got segment front_right_caster
+[robot_state_publisher-2] [INFO] [1791215724.667656587] [robot_state_publisher]: got segment left_wheel
+[robot_state_publisher-2] [INFO] [1791215724.667660425] [robot_state_publisher]: got segment right_wheel
+[gzserver-1] Gazebo multi-robot simulator, version 11.10.2
+[gzserver-1] Copyright (C) 2012 Open Source Robotics Foundation.
+[gzserver-1] Released under the Apache 2 License.
+[gzserver-1] http://gazebosim.org
+[gzserver-1] 
+[ground_truth_tf_publisher-4] [INFO] [1791215725.075903695] [ground_truth_tf_publisher]: Ground truth TF publisher started for "mower": map -> odom (ground truth correction)
+[robot_trail_publisher-5] [INFO] [1791215725.084173909] [robot_trail_publisher]: Robot trail: /ground_truth/pose on /robot_trail
+[coverage_monitor-6] [INFO] [1791215725.093708175] [coverage_monitor]: Coverage monitor: field from /coverage_path
+[spawn_entity.py-3] [INFO] [1791215725.107759175] [spawn_entity]: Spawn Entity started
+[spawn_entity.py-3] [INFO] [1791215725.108149310] [spawn_entity]: Loading entity published on topic robot_description
+[spawn_entity.py-3] [INFO] [1791215725.109102658] [spawn_entity]: Waiting for entity xml on robot_description
+[spawn_entity.py-3] [INFO] [1791215725.110806232] [spawn_entity]: Waiting for service /spawn_entity, timeout = 120
+[spawn_entity.py-3] [INFO] [1791215725.111168235] [spawn_entity]: Waiting for service /spawn_entity
+[gzserver-1] [1;33m[Wrn] [gazebo_ros_init.cpp:178] [0m[1;33m
+[gzserver-1] #     # ####### ####### ###  #####  #######
+[gzserver-1] ##    # #     #    #     #  #     # #
+[gzserver-1] # #   # #     #    #     #  #       #
+[gzserver-1] #  #  # #     #    #     #  #       #####
+[gzserver-1] #   # # #     #    #     #  #       #
+[gzserver-1] #    ## #     #    #     #  #     # #
+[gzserver-1] #     # #######    #    ###  #####  #######
+[gzserver-1] 
+[gzserver-1] This version of Gazebo, now called Gazebo classic, reaches end-of-life
+[gzserver-1] in January 2025. Users are highly encouraged to migrate to the new Gazebo
+[gzserver-1] using our migration guides (https://gazebosim.org/docs/latest/gazebo_classic_migration?utm_source=gazebo_ros_pkgs&utm_medium=cli)
+[gzserver-1] 
+[gzserver-1] [0m[1;33m
+[spawn_entity.py-3] [INFO] [1791215725.614650642] [spawn_entity]: Calling service /spawn_entity
+[gzserver-1] [0m[1;33m[0m[1;33m[0m[INFO] [1791215725.649472263] [gazebo.gazebo_ros_state]: Publishing states of gazebo models at [/gazebo/model_states]
+[gzserver-1] [INFO] [1791215725.649923804] [gazebo.gazebo_ros_state]: Publishing states of gazebo links at [/gazebo/link_states]
+[spawn_entity.py-3] [INFO] [1791215725.736569732] [spawn_entity]: Spawn status: SpawnEntity: Successfully spawned entity [mower]
+[gzserver-1] [INFO] [1791215725.845819313] [diff_drive]: Wheel pair 1 separation set to [0.700000m]
+[gzserver-1] [INFO] [1791215725.845856812] [diff_drive]: Wheel pair 1 diameter set to [0.300000m]
+[gzserver-1] [INFO] [1791215725.846361270] [diff_drive]: Subscribed to [/cmd_vel]
+[gzserver-1] [INFO] [1791215725.847063886] [diff_drive]: Advertise odometry on [/odom]
+[gzserver-1] [INFO] [1791215725.847912873] [diff_drive]: Publishing odom transforms between [odom] and [base_footprint]
+[gzserver-1] [INFO] [1791215725.852807108] [joint_states]: Going to publish joint [left_wheel_joint]
+[gzserver-1] [INFO] [1791215725.852824023] [joint_states]: Going to publish joint [right_wheel_joint]
+[INFO] [spawn_entity.py-3]: process has finished cleanly [pid 7516]
+[gzserver-1] [1;32m[Msg] [0m[1;32mWaiting for master.[0m[1;32m
+[gzserver-1] [0m[1;32m[0m[1;32m[0m[1;32m[Msg] [0m[1;32mConnected to gazebo master @ [0m[1;32mhttp://127.0.0.1:11345[0m[1;32m
+[gzserver-1] [0m[1;32m[0m[1;32m[0m[1;32m[Msg] [0m[1;32mPublicized address: [0m[1;32m192.168.1.6[0m[1;32m
+[gzserver-1] [0m[1;32m[0m[1;32m[0m[1;32m[Msg] [0m[1;32mLoading world file [[0m[1;32m/home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/install/mower_sim/share/mower_sim/worlds/empty_field.world[0m[1;32m][0m[1;32m
+[INFO] [map_server-7]: process started with pid [7914]
+[INFO] [lifecycle_manager-8]: process started with pid [7916]
+[INFO] [controller_server-9]: process started with pid [7918]
+[INFO] [smoother_server-10]: process started with pid [7920]
+[INFO] [planner_server-11]: process started with pid [7922]
+[INFO] [behavior_server-12]: process started with pid [7924]
+[INFO] [bt_navigator-13]: process started with pid [7926]
+[INFO] [waypoint_follower-14]: process started with pid [7928]
+[INFO] [velocity_smoother-15]: process started with pid [7930]
+[INFO] [lifecycle_manager-16]: process started with pid [7932]
+[lifecycle_manager-8] [INFO] [1791215744.802360234] [lifecycle_manager_map_server]: Creating
+[lifecycle_manager-8] [INFO] [1791215744.803768312] [lifecycle_manager_map_server]: [34m[1mCreating and initializing lifecycle service clients[0m[0m
+[smoother_server-10] [INFO] [1791215744.804594297] [smoother_server]: 
+[smoother_server-10] 	smoother_server lifecycle node launched. 
+[smoother_server-10] 	Waiting on external lifecycle transitions to activate
+[smoother_server-10] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-9] [INFO] [1791215744.806523361] [controller_server]: 
+[controller_server-9] 	controller_server lifecycle node launched. 
+[controller_server-9] 	Waiting on external lifecycle transitions to activate
+[controller_server-9] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[smoother_server-10] [INFO] [1791215744.808088217] [smoother_server]: Creating smoother server
+[behavior_server-12] [INFO] [1791215744.809841321] [behavior_server]: 
+[behavior_server-12] 	behavior_server lifecycle node launched. 
+[behavior_server-12] 	Waiting on external lifecycle transitions to activate
+[behavior_server-12] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[waypoint_follower-14] [INFO] [1791215744.809974284] [waypoint_follower]: 
+[waypoint_follower-14] 	waypoint_follower lifecycle node launched. 
+[waypoint_follower-14] 	Waiting on external lifecycle transitions to activate
+[waypoint_follower-14] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[waypoint_follower-14] [INFO] [1791215744.810382493] [waypoint_follower]: Creating
+[velocity_smoother-15] [INFO] [1791215744.810229031] [velocity_smoother]: 
+[velocity_smoother-15] 	velocity_smoother lifecycle node launched. 
+[velocity_smoother-15] 	Waiting on external lifecycle transitions to activate
+[velocity_smoother-15] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[lifecycle_manager-16] [INFO] [1791215744.811741297] [lifecycle_manager_navigation]: Creating
+[controller_server-9] [INFO] [1791215744.812660040] [controller_server]: Creating controller server
+[lifecycle_manager-16] [INFO] [1791215744.813524877] [lifecycle_manager_navigation]: [34m[1mCreating and initializing lifecycle service clients[0m[0m
+[map_server-7] [INFO] [1791215744.814735637] [map_server]: 
+[map_server-7] 	map_server lifecycle node launched. 
+[map_server-7] 	Waiting on external lifecycle transitions to activate
+[map_server-7] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[map_server-7] [INFO] [1791215744.814823854] [map_server]: Creating
+[planner_server-11] [INFO] [1791215744.814960494] [planner_server]: 
+[planner_server-11] 	planner_server lifecycle node launched. 
+[planner_server-11] 	Waiting on external lifecycle transitions to activate
+[planner_server-11] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[bt_navigator-13] [INFO] [1791215744.815509846] [bt_navigator]: 
+[bt_navigator-13] 	bt_navigator lifecycle node launched. 
+[bt_navigator-13] 	Waiting on external lifecycle transitions to activate
+[bt_navigator-13] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[bt_navigator-13] [INFO] [1791215744.815609773] [bt_navigator]: Creating
+[planner_server-11] [INFO] [1791215744.818757111] [planner_server]: Creating
+[controller_server-9] [INFO] [1791215744.819710500] [local_costmap.local_costmap]: 
+[controller_server-9] 	local_costmap lifecycle node launched. 
+[controller_server-9] 	Waiting on external lifecycle transitions to activate
+[controller_server-9] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-9] [INFO] [1791215744.820204495] [local_costmap.local_costmap]: Creating Costmap
+[lifecycle_manager-8] [INFO] [1791215744.824217597] [lifecycle_manager_map_server]: [34m[1mStarting managed nodes bringup...[0m[0m
+[lifecycle_manager-8] [INFO] [1791215744.824269724] [lifecycle_manager_map_server]: [34m[1mConfiguring map_server[0m[0m
+[map_server-7] [INFO] [1791215744.824837007] [map_server]: Configuring
+[map_server-7] [INFO] [1791215744.824923005] [map_io]: Loading yaml file: /home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/install/mower_sim/share/mower_sim/maps/empty_map.yaml
+[map_server-7] [INFO] [1791215744.825293014] [map_io]: resolution: 0.05
+[map_server-7] [INFO] [1791215744.825309936] [map_io]: origin[0]: -50
+[map_server-7] [INFO] [1791215744.825317106] [map_io]: origin[1]: -50
+[map_server-7] [INFO] [1791215744.825324198] [map_io]: origin[2]: 0
+[map_server-7] [INFO] [1791215744.825331650] [map_io]: free_thresh: 0.196
+[map_server-7] [INFO] [1791215744.825339243] [map_io]: occupied_thresh: 0.65
+[map_server-7] [INFO] [1791215744.825346798] [map_io]: mode: trinary
+[map_server-7] [INFO] [1791215744.825355019] [map_io]: negate: 0
+[map_server-7] [INFO] [1791215744.825701856] [map_io]: Loading image_file: /home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/install/mower_sim/share/mower_sim/maps/empty_map.pgm
+[planner_server-11] [INFO] [1791215744.832486405] [global_costmap.global_costmap]: 
+[planner_server-11] 	global_costmap lifecycle node launched. 
+[planner_server-11] 	Waiting on external lifecycle transitions to activate
+[planner_server-11] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[planner_server-11] [INFO] [1791215744.833098857] [global_costmap.global_costmap]: Creating Costmap
+[lifecycle_manager-16] [INFO] [1791215744.837038403] [lifecycle_manager_navigation]: [34m[1mStarting managed nodes bringup...[0m[0m
+[lifecycle_manager-16] [INFO] [1791215744.837078211] [lifecycle_manager_navigation]: [34m[1mConfiguring controller_server[0m[0m
+[controller_server-9] [INFO] [1791215744.837227149] [controller_server]: Configuring controller interface
+[controller_server-9] [INFO] [1791215744.837376238] [controller_server]: getting goal checker plugins..
+[controller_server-9] [INFO] [1791215744.837402394] [controller_server]: Controller frequency set to 30.0000Hz
+[controller_server-9] [INFO] [1791215744.837432343] [local_costmap.local_costmap]: Configuring
+[controller_server-9] [INFO] [1791215744.839975095] [local_costmap.local_costmap]: Using plugin "static_layer"
+[controller_server-9] [INFO] [1791215744.841980878] [local_costmap.local_costmap]: Subscribing to the map topic (/map) with transient local durability
+[controller_server-9] [INFO] [1791215744.842293567] [local_costmap.local_costmap]: Initialized plugin "static_layer"
+[controller_server-9] [INFO] [1791215744.842311924] [local_costmap.local_costmap]: Using plugin "voxel_layer"
+[controller_server-9] [INFO] [1791215744.842631729] [local_costmap.local_costmap]: Subscribed to Topics: scan
+[controller_server-9] [INFO] [1791215744.844885455] [local_costmap.local_costmap]: Initialized plugin "voxel_layer"
+[controller_server-9] [INFO] [1791215744.844900759] [local_costmap.local_costmap]: Using plugin "inflation_layer"
+[controller_server-9] [INFO] [1791215744.845284297] [local_costmap.local_costmap]: Initialized plugin "inflation_layer"
+[controller_server-9] [INFO] [1791215744.847654693] [controller_server]: Created progress_checker : progress_checker of type nav2_controller::SimpleProgressChecker
+[controller_server-9] [INFO] [1791215744.848013748] [controller_server]: Created goal checker : general_goal_checker of type nav2_controller::SimpleGoalChecker
+[controller_server-9] [INFO] [1791215744.848191926] [controller_server]: Controller Server has general_goal_checker  goal checkers available.
+[controller_server-9] [INFO] [1791215744.848574304] [controller_server]: Created controller : RPP of type nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController
+[controller_server-9] [INFO] [1791215744.851066863] [controller_server]: Created controller : MPPI of type nav2_mppi_controller::MPPIController
+[controller_server-9] [WARN] [1791215744.852092781] [controller_server]: Controller period is less then model dt, consider setting it equal
+[controller_server-9] [INFO] [1791215744.852828994] [controller_server]: ConstraintCritic instantiated with 1 power and 4.000000 weight.
+[controller_server-9] [INFO] [1791215744.852850266] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[controller_server-9] [INFO] [1791215744.853067659] [controller_server]: GoalCritic instantiated with 1 power and 2.000000 weight.
+[controller_server-9] [INFO] [1791215744.853077746] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[controller_server-9] [INFO] [1791215744.853268948] [controller_server]: GoalAngleCritic instantiated with 1 power, 1.000000 weight, and 0.300000 angular threshold.
+[controller_server-9] [INFO] [1791215744.853279561] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[controller_server-9] [INFO] [1791215744.853634351] [controller_server]: ReferenceTrajectoryCritic instantiated with 1 power and 14.000000 weight
+[controller_server-9] [INFO] [1791215744.853646225] [controller_server]: Critic loaded : mppi::critics::PathAlignCritic
+[controller_server-9] [INFO] [1791215744.853884206] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[controller_server-9] [INFO] [1791215744.854237802] [controller_server]: PathAngleCritic instantiated with 1 power and 2.000000 weight. Reversing allowed.
+[controller_server-9] [INFO] [1791215744.854253278] [controller_server]: Critic loaded : mppi::critics::PathAngleCritic
+[controller_server-9] [INFO] [1791215744.854762126] [controller_server]: ObstaclesCritic instantiated with 1 power and 20.000000 / 2.000000 weights. Critic will collision check based on footprint cost.
+[controller_server-9] [INFO] [1791215744.854778519] [controller_server]: Critic loaded : mppi::critics::ObstaclesCritic
+[controller_server-9] [INFO] [1791215744.854996264] [controller_server]: PreferForwardCritic instantiated with 1 power and 1.000000 weight.
+[controller_server-9] [INFO] [1791215744.855026896] [controller_server]: Critic loaded : mppi::critics::PreferForwardCritic
+[controller_server-9] [INFO] [1791215744.855256019] [controller_server]: VelocityDeadbandCritic instantiated with 1 power, 0.5 weight, deadband_velocity [0.02,0,0.02]
+[controller_server-9] [INFO] [1791215744.855265858] [controller_server]: Critic loaded : mppi::critics::VelocityDeadbandCritic
+[controller_server-9] [INFO] [1791215744.855429314] [controller_server]: TwirlingCritic instantiated with 1 power and 1.000000 weight.
+[controller_server-9] [INFO] [1791215744.855442006] [controller_server]: Critic loaded : mppi::critics::TwirlingCritic
+[controller_server-9] [INFO] [1791215744.856710456] [controller_server]: Optimizer reset
+[controller_server-9] [INFO] [1791215744.857829555] [MPPIController]: Configured MPPI Controller: MPPI
+[controller_server-9] [INFO] [1791215744.858702589] [controller_server]: Created controller : DWB of type dwb_core::DWBLocalPlanner
+[controller_server-9] [INFO] [1791215744.859256605] [controller_server]: Setting transform_tolerance to 0.200000
+[controller_server-9] [INFO] [1791215744.862645061] [controller_server]: Using critic "RotateToGoal" (dwb_critics::RotateToGoalCritic)
+[controller_server-9] [INFO] [1791215744.862979668] [controller_server]: Critic plugin initialized
+[controller_server-9] [INFO] [1791215744.863064623] [controller_server]: Using critic "BaseObstacle" (dwb_critics::BaseObstacleCritic)
+[controller_server-9] [INFO] [1791215744.863181405] [controller_server]: Critic plugin initialized
+[controller_server-9] [INFO] [1791215744.863249742] [controller_server]: Using critic "PathAlign" (dwb_critics::PathAlignCritic)
+[controller_server-9] [INFO] [1791215744.863442212] [controller_server]: Critic plugin initialized
+[controller_server-9] [INFO] [1791215744.863511202] [controller_server]: Using critic "PathDist" (dwb_critics::PathDistCritic)
+[controller_server-9] [INFO] [1791215744.863654816] [controller_server]: Critic plugin initialized
+[controller_server-9] [INFO] [1791215744.863726363] [controller_server]: Using critic "GoalDist" (dwb_critics::GoalDistCritic)
+[controller_server-9] [INFO] [1791215744.863862421] [controller_server]: Critic plugin initialized
+[controller_server-9] [INFO] [1791215744.863872659] [controller_server]: Controller Server has RPP MPPI DWB  controllers available.
+[lifecycle_manager-16] [INFO] [1791215744.866114303] [lifecycle_manager_navigation]: [34m[1mConfiguring smoother_server[0m[0m
+[smoother_server-10] [INFO] [1791215744.866234589] [smoother_server]: Configuring smoother server
+[smoother_server-10] [INFO] [1791215744.868952339] [smoother_server]: Created smoother : simple_smoother of type nav2_smoother::SimpleSmoother
+[smoother_server-10] [INFO] [1791215744.869241456] [smoother_server]: Smoother Server has simple_smoother  smoothers available.
+[lifecycle_manager-16] [INFO] [1791215744.870662434] [lifecycle_manager_navigation]: [34m[1mConfiguring planner_server[0m[0m
+[planner_server-11] [INFO] [1791215744.870781745] [planner_server]: Configuring
+[planner_server-11] [INFO] [1791215744.870815881] [global_costmap.global_costmap]: Configuring
+[planner_server-11] [INFO] [1791215744.873034008] [global_costmap.global_costmap]: Using plugin "static_layer"
+[planner_server-11] [INFO] [1791215744.875460309] [global_costmap.global_costmap]: Subscribing to the map topic (/map) with transient local durability
+[planner_server-11] [INFO] [1791215744.875856548] [global_costmap.global_costmap]: Initialized plugin "static_layer"
+[planner_server-11] [INFO] [1791215744.875872763] [global_costmap.global_costmap]: Using plugin "obstacle_layer"
+[planner_server-11] [INFO] [1791215744.876261793] [global_costmap.global_costmap]: Subscribed to Topics: scan
+[planner_server-11] [INFO] [1791215744.877858135] [global_costmap.global_costmap]: Initialized plugin "obstacle_layer"
+[planner_server-11] [INFO] [1791215744.877876051] [global_costmap.global_costmap]: Using plugin "inflation_layer"
+[planner_server-11] [INFO] [1791215744.878441169] [global_costmap.global_costmap]: Initialized plugin "inflation_layer"
+[planner_server-11] [INFO] [1791215744.881450254] [planner_server]: Created global planner plugin GridBased of type nav2_navfn_planner/NavfnPlanner
+[planner_server-11] [INFO] [1791215744.881473543] [planner_server]: Configuring plugin GridBased of type NavfnPlanner
+[planner_server-11] [INFO] [1791215744.881798230] [planner_server]: Planner Server has GridBased  planners available.
+[lifecycle_manager-16] [INFO] [1791215744.884603414] [lifecycle_manager_navigation]: [34m[1mConfiguring behavior_server[0m[0m
+[behavior_server-12] [INFO] [1791215744.884714198] [behavior_server]: Configuring
+[behavior_server-12] [INFO] [1791215744.887386571] [behavior_server]: Creating behavior plugin spin of type nav2_behaviors/Spin
+[behavior_server-12] [INFO] [1791215744.887797161] [behavior_server]: Configuring spin
+[behavior_server-12] [INFO] [1791215744.889261245] [behavior_server]: Creating behavior plugin backup of type nav2_behaviors/BackUp
+[behavior_server-12] [INFO] [1791215744.889646473] [behavior_server]: Configuring backup
+[behavior_server-12] [INFO] [1791215744.890911432] [behavior_server]: Creating behavior plugin drive_on_heading of type nav2_behaviors/DriveOnHeading
+[behavior_server-12] [INFO] [1791215744.891312084] [behavior_server]: Configuring drive_on_heading
+[behavior_server-12] [INFO] [1791215744.892556462] [behavior_server]: Creating behavior plugin assisted_teleop of type nav2_behaviors/AssistedTeleop
+[behavior_server-12] [INFO] [1791215744.893436576] [behavior_server]: Configuring assisted_teleop
+[behavior_server-12] [INFO] [1791215744.894961062] [behavior_server]: Creating behavior plugin wait of type nav2_behaviors/Wait
+[behavior_server-12] [INFO] [1791215744.895324298] [behavior_server]: Configuring wait
+[lifecycle_manager-16] [INFO] [1791215744.896625120] [lifecycle_manager_navigation]: [34m[1mConfiguring bt_navigator[0m[0m
+[bt_navigator-13] [INFO] [1791215744.896773412] [bt_navigator]: Configuring
+[lifecycle_manager-16] [INFO] [1791215744.928074884] [lifecycle_manager_navigation]: [34m[1mConfiguring waypoint_follower[0m[0m
+[waypoint_follower-14] [INFO] [1791215744.928185459] [waypoint_follower]: Configuring
+[waypoint_follower-14] [INFO] [1791215744.931115809] [waypoint_follower]: Created waypoint_task_executor : wait_at_waypoint of type nav2_waypoint_follower::WaitAtWaypoint
+[lifecycle_manager-16] [INFO] [1791215744.931455861] [lifecycle_manager_navigation]: [34m[1mConfiguring velocity_smoother[0m[0m
+[velocity_smoother-15] [INFO] [1791215744.931578605] [velocity_smoother]: Configuring velocity smoother
+[lifecycle_manager-16] [INFO] [1791215744.932991432] [lifecycle_manager_navigation]: [34m[1mActivating controller_server[0m[0m
+[controller_server-9] [INFO] [1791215744.933077787] [controller_server]: Activating
+[controller_server-9] [INFO] [1791215744.933106433] [local_costmap.local_costmap]: Activating
+[controller_server-9] [INFO] [1791215744.933116478] [local_costmap.local_costmap]: Checking transform
+[controller_server-9] [INFO] [1791215744.933197309] [local_costmap.local_costmap]: start
+[map_server-7] [INFO] [1791215745.104625531] [map_io]: Read map /home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/install/mower_sim/share/mower_sim/maps/empty_map.pgm: 2000 X 2000 map @ 0.05 m/cell
+[lifecycle_manager-8] [INFO] [1791215745.110717851] [lifecycle_manager_map_server]: [34m[1mActivating map_server[0m[0m
+[map_server-7] [INFO] [1791215745.110811142] [map_server]: Activating
+[map_server-7] [INFO] [1791215745.116145423] [map_server]: Creating bond (map_server) to lifecycle manager.
+[controller_server-9] [INFO] [1791215745.119587784] [local_costmap.local_costmap]: StaticLayer: Resizing static layer to 2000 X 2000 at 0.050000 m/pix
+[planner_server-11] [INFO] [1791215745.120025330] [global_costmap.global_costmap]: StaticLayer: Resizing costmap to 2000 X 2000 at 0.050000 m/pix
+[controller_server-9] [WARN] [1791215745.183543948] [controller_server]: Parameter controller_server.verbose not found
+[controller_server-9] [INFO] [1791215745.184272790] [controller_server]: Optimizer reset
+[controller_server-9] [INFO] [1791215745.184461377] [MPPIController]: Activated MPPI Controller: MPPI
+[controller_server-9] [INFO] [1791215745.184474634] [controller_server]: Activating controller: RPP of type regulated_pure_pursuit_controller::RegulatedPurePursuitController
+[controller_server-9] [INFO] [1791215745.184504019] [controller_server]: Creating bond (controller_server) to lifecycle manager.
+[lifecycle_manager-8] [INFO] [1791215745.217828051] [lifecycle_manager_map_server]: Server map_server connected with bond.
+[lifecycle_manager-8] [INFO] [1791215745.217859159] [lifecycle_manager_map_server]: [34m[1mManaged nodes are active[0m[0m
+[lifecycle_manager-8] [INFO] [1791215745.217869354] [lifecycle_manager_map_server]: [34m[1mCreating bond timer...[0m[0m
+[lifecycle_manager-16] [INFO] [1791215745.286128882] [lifecycle_manager_navigation]: Server controller_server connected with bond.
+[lifecycle_manager-16] [INFO] [1791215745.286162582] [lifecycle_manager_navigation]: [34m[1mActivating smoother_server[0m[0m
+[smoother_server-10] [INFO] [1791215745.286388960] [smoother_server]: Activating
+[smoother_server-10] [INFO] [1791215745.286423001] [smoother_server]: Creating bond (smoother_server) to lifecycle manager.
+[lifecycle_manager-16] [INFO] [1791215745.387623950] [lifecycle_manager_navigation]: Server smoother_server connected with bond.
+[lifecycle_manager-16] [INFO] [1791215745.387653168] [lifecycle_manager_navigation]: [34m[1mActivating planner_server[0m[0m
+[planner_server-11] [INFO] [1791215745.387777934] [planner_server]: Activating
+[planner_server-11] [INFO] [1791215745.387812265] [global_costmap.global_costmap]: Activating
+[planner_server-11] [INFO] [1791215745.387820867] [global_costmap.global_costmap]: Checking transform
+[planner_server-11] [INFO] [1791215745.387880657] [global_costmap.global_costmap]: start
+[planner_server-11] [INFO] [1791215746.438208365] [planner_server]: Activating plugin GridBased of type NavfnPlanner
+[planner_server-11] [INFO] [1791215746.438549439] [planner_server]: Creating bond (planner_server) to lifecycle manager.
+[lifecycle_manager-16] [INFO] [1791215746.539887274] [lifecycle_manager_navigation]: Server planner_server connected with bond.
+[lifecycle_manager-16] [INFO] [1791215746.539929125] [lifecycle_manager_navigation]: [34m[1mActivating behavior_server[0m[0m
+[behavior_server-12] [INFO] [1791215746.540152237] [behavior_server]: Activating
+[behavior_server-12] [INFO] [1791215746.540185783] [behavior_server]: Activating spin
+[behavior_server-12] [INFO] [1791215746.540200509] [behavior_server]: Activating backup
+[behavior_server-12] [INFO] [1791215746.540212780] [behavior_server]: Activating drive_on_heading
+[behavior_server-12] [INFO] [1791215746.540223510] [behavior_server]: Activating assisted_teleop
+[behavior_server-12] [INFO] [1791215746.540234033] [behavior_server]: Activating wait
+[behavior_server-12] [INFO] [1791215746.540247159] [behavior_server]: Creating bond (behavior_server) to lifecycle manager.
+[lifecycle_manager-16] [INFO] [1791215746.641649253] [lifecycle_manager_navigation]: Server behavior_server connected with bond.
+[lifecycle_manager-16] [INFO] [1791215746.641691116] [lifecycle_manager_navigation]: [34m[1mActivating bt_navigator[0m[0m
+[bt_navigator-13] [INFO] [1791215746.641808252] [bt_navigator]: Activating
+[bt_navigator-13] [INFO] [1791215746.654334213] [bt_navigator]: Creating bond (bt_navigator) to lifecycle manager.
+[lifecycle_manager-16] [INFO] [1791215746.755617580] [lifecycle_manager_navigation]: Server bt_navigator connected with bond.
+[lifecycle_manager-16] [INFO] [1791215746.755650806] [lifecycle_manager_navigation]: [34m[1mActivating waypoint_follower[0m[0m
+[waypoint_follower-14] [INFO] [1791215746.755807898] [waypoint_follower]: Activating
+[waypoint_follower-14] [INFO] [1791215746.755839141] [waypoint_follower]: Creating bond (waypoint_follower) to lifecycle manager.
+[lifecycle_manager-16] [INFO] [1791215746.857168002] [lifecycle_manager_navigation]: Server waypoint_follower connected with bond.
+[lifecycle_manager-16] [INFO] [1791215746.857196471] [lifecycle_manager_navigation]: [34m[1mActivating velocity_smoother[0m[0m
+[velocity_smoother-15] [INFO] [1791215746.857344332] [velocity_smoother]: Activating
+[velocity_smoother-15] [INFO] [1791215746.857388860] [velocity_smoother]: Creating bond (velocity_smoother) to lifecycle manager.
+[lifecycle_manager-16] [INFO] [1791215746.958713071] [lifecycle_manager_navigation]: Server velocity_smoother connected with bond.
+[lifecycle_manager-16] [INFO] [1791215746.958746318] [lifecycle_manager_navigation]: [34m[1mManaged nodes are active[0m[0m
+[lifecycle_manager-16] [INFO] [1791215746.958767180] [lifecycle_manager_navigation]: [34m[1mCreating bond timer...[0m[0m
+[controller_server-9] [INFO] [1791215747.871303078] [controller_server]: Received a goal, begin computing control effort.
+[robot_trail_publisher-5] [INFO] [1791215747.871751911] [robot_trail_publisher]: New run, trail cleared
+[coverage_monitor-6] [INFO] [1791215748.029582460] [coverage_monitor]: New coverage path, field rebuilt
+[controller_server-9] [INFO] [1791215753.538111587] [controller_server]: Passing new path to controller.
+[controller_server-9] [INFO] [1791215753.539156238] [controller_server]: Optimizer reset
+[controller_server-9] [INFO] [1791215757.771444107] [controller_server]: Passing new path to controller.
+[controller_server-9] [INFO] [1791215762.904778261] [controller_server]: Passing new path to controller.
+[controller_server-9] [INFO] [1791215762.905339686] [controller_server]: Optimizer reset
+[controller_server-9] [INFO] [1791215768.271463093] [controller_server]: Passing new path to controller.
+[controller_server-9] [INFO] [1791215773.271553051] [controller_server]: Reached the goal!
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[smoother_server-10] [INFO] [1791215773.658092488] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[smoother_server-10] [INFO] [1791215773.658177101] [smoother_server]: Running Nav2 LifecycleNode rcl preshutdown (smoother_server)
+[smoother_server-10] [INFO] [1791215773.658244714] [smoother_server]: Deactivating
+[smoother_server-10] [INFO] [1791215773.658265967] [smoother_server]: Destroying bond (smoother_server) to lifecycle manager.
+[planner_server-11] [INFO] [1791215773.658089718] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[planner_server-11] [INFO] [1791215773.658172788] [planner_server]: Running Nav2 LifecycleNode rcl preshutdown (planner_server)
+[planner_server-11] [INFO] [1791215773.658230464] [planner_server]: Deactivating
+[planner_server-11] [INFO] [1791215773.658267765] [global_costmap.global_costmap]: Deactivating
+[controller_server-9] [INFO] [1791215773.658101668] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[controller_server-9] [INFO] [1791215773.658155966] [controller_server]: Running Nav2 LifecycleNode rcl preshutdown (controller_server)
+[controller_server-9] [INFO] [1791215773.658233982] [controller_server]: Deactivating
+[controller_server-9] [INFO] [1791215773.658283329] [MPPIController]: Deactivated MPPI Controller: MPPI
+[controller_server-9] [INFO] [1791215773.658289618] [controller_server]: Deactivating controller: RPP of type regulated_pure_pursuit_controller::RegulatedPurePursuitController
+[controller_server-9] [INFO] [1791215773.658314530] [local_costmap.local_costmap]: Deactivating
+[map_server-7] [INFO] [1791215773.658097377] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[map_server-7] [INFO] [1791215773.658220554] [map_server]: Running Nav2 LifecycleNode rcl preshutdown (map_server)
+[map_server-7] [INFO] [1791215773.658301422] [map_server]: Deactivating
+[map_server-7] [INFO] [1791215773.658318604] [map_server]: Destroying bond (map_server) to lifecycle manager.
+[velocity_smoother-15] [INFO] [1791215773.658102743] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[velocity_smoother-15] [INFO] [1791215773.658206710] [velocity_smoother]: Running Nav2 LifecycleNode rcl preshutdown (velocity_smoother)
+[velocity_smoother-15] [INFO] [1791215773.658283309] [velocity_smoother]: Deactivating
+[velocity_smoother-15] [INFO] [1791215773.658306854] [velocity_smoother]: Destroying bond (velocity_smoother) to lifecycle manager.
+[robot_state_publisher-2] [INFO] [1791215773.658105492] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[behavior_server-12] [INFO] [1791215773.658113082] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[behavior_server-12] [INFO] [1791215773.658180840] [behavior_server]: Running Nav2 LifecycleNode rcl preshutdown (behavior_server)
+[behavior_server-12] [INFO] [1791215773.658240790] [behavior_server]: Deactivating
+[behavior_server-12] [INFO] [1791215773.658284240] [behavior_server]: Destroying bond (behavior_server) to lifecycle manager.
+[bt_navigator-13] [INFO] [1791215773.658111153] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[bt_navigator-13] [INFO] [1791215773.658180315] [bt_navigator]: Running Nav2 LifecycleNode rcl preshutdown (bt_navigator)
+[bt_navigator-13] [INFO] [1791215773.658243274] [bt_navigator]: Deactivating
+[bt_navigator-13] [INFO] [1791215773.658268125] [bt_navigator]: Destroying bond (bt_navigator) to lifecycle manager.
+[lifecycle_manager-16] [INFO] [1791215773.658116515] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lifecycle_manager-16] [INFO] [1791215773.658171366] [lifecycle_manager_navigation]: Running Nav2 LifecycleManager rcl preshutdown (lifecycle_manager_navigation)
+[lifecycle_manager-16] [INFO] [1791215773.658203429] [lifecycle_manager_navigation]: [34m[1mTerminating bond timer...[0m[0m
+[INFO] [lifecycle_manager-16]: sending signal 'SIGINT' to process[lifecycle_manager-16]
+[INFO] [velocity_smoother-15]: sending signal 'SIGINT' to process[velocity_smoother-15]
+[INFO] [waypoint_follower-14]: sending signal 'SIGINT' to process[waypoint_follower-14]
+[INFO] [bt_navigator-13]: sending signal 'SIGINT' to process[bt_navigator-13]
+[INFO] [behavior_server-12]: sending signal 'SIGINT' to process[behavior_server-12]
+[INFO] [planner_server-11]: sending signal 'SIGINT' to process[planner_server-11]
+[INFO] [smoother_server-10]: sending signal 'SIGINT' to process[smoother_server-10]
+[INFO] [controller_server-9]: sending signal 'SIGINT' to process[controller_server-9]
+[INFO] [lifecycle_manager-8]: sending signal 'SIGINT' to process[lifecycle_manager-8]
+[INFO] [map_server-7]: sending signal 'SIGINT' to process[map_server-7]
+[INFO] [coverage_monitor-6]: sending signal 'SIGINT' to process[coverage_monitor-6]
+[INFO] [robot_trail_publisher-5]: sending signal 'SIGINT' to process[robot_trail_publisher-5]
+[INFO] [ground_truth_tf_publisher-4]: sending signal 'SIGINT' to process[ground_truth_tf_publisher-4]
+[INFO] [robot_state_publisher-2]: sending signal 'SIGINT' to process[robot_state_publisher-2]
+[INFO] [gzserver-1]: sending signal 'SIGINT' to process[gzserver-1]
+[lifecycle_manager-8] [INFO] [1791215773.658138868] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lifecycle_manager-8] [INFO] [1791215773.658199376] [lifecycle_manager_map_server]: Running Nav2 LifecycleManager rcl preshutdown (lifecycle_manager_map_server)
+[lifecycle_manager-8] [INFO] [1791215773.658241390] [lifecycle_manager_map_server]: [34m[1mTerminating bond timer...[0m[0m
+[waypoint_follower-14] [INFO] [1791215773.658204468] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[waypoint_follower-14] [INFO] [1791215773.658286452] [waypoint_follower]: Running Nav2 LifecycleNode rcl preshutdown (waypoint_follower)
+[waypoint_follower-14] [INFO] [1791215773.658343651] [waypoint_follower]: Deactivating
+[waypoint_follower-14] [INFO] [1791215773.658361069] [waypoint_follower]: Destroying bond (waypoint_follower) to lifecycle manager.
+[bt_navigator-13] [INFO] [1791215773.668495682] [bt_navigator]: Cleaning up
+[behavior_server-12] [INFO] [1791215773.668495973] [behavior_server]: Cleaning up
+[smoother_server-10] [INFO] [1791215773.668502199] [smoother_server]: Cleaning up
+[velocity_smoother-15] [INFO] [1791215773.668503890] [velocity_smoother]: Cleaning up
+[velocity_smoother-15] [INFO] [1791215773.668542343] [velocity_smoother]: Destroying bond (velocity_smoother) to lifecycle manager.
+[velocity_smoother-15] [INFO] [1791215773.668894793] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[map_server-7] [INFO] [1791215773.668542709] [map_server]: Cleaning up
+[map_server-7] [INFO] [1791215773.668868470] [map_server]: Destroying bond (map_server) to lifecycle manager.
+[waypoint_follower-14] [INFO] [1791215773.668579152] [waypoint_follower]: Cleaning up
+[behavior_server-12] [INFO] [1791215773.673115020] [behavior_server]: Destroying bond (behavior_server) to lifecycle manager.
+[behavior_server-12] [INFO] [1791215773.674025433] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lifecycle_manager-8] [INFO] [1791215773.676080583] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[map_server-7] [INFO] [1791215773.677333866] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[waypoint_follower-14] [INFO] [1791215773.677588729] [waypoint_follower]: Destroying bond (waypoint_follower) to lifecycle manager.
+[waypoint_follower-14] [INFO] [1791215773.678709022] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[coverage_monitor-6] Traceback (most recent call last):
+[coverage_monitor-6]   File "/home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/install/mower_sim/lib/mower_sim/coverage_monitor", line 33, in <module>
+[coverage_monitor-6]     sys.exit(load_entry_point('mower-sim==0.0.0', 'console_scripts', 'coverage_monitor')())
+[coverage_monitor-6]   File "/home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/install/mower_sim/lib/python3.10/site-packages/mower_sim/coverage_monitor.py", line 153, in main
+[coverage_monitor-6]     node.destroy_node()
+[coverage_monitor-6]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 1691, in destroy_node
+[coverage_monitor-6]     self.destroy_service(self._services[0])
+[coverage_monitor-6]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 1615, in destroy_service
+[coverage_monitor-6]     service.destroy()
+[coverage_monitor-6]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/service.py", line 93, in destroy
+[coverage_monitor-6]     self.__service.destroy_when_not_in_use()
+[coverage_monitor-6] KeyboardInterrupt
+[robot_state_publisher-2] [INFO] [1791215773.684154750] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[smoother_server-10] [INFO] [1791215773.684616344] [smoother_server]: Destroying bond (smoother_server) to lifecycle manager.
+[smoother_server-10] [INFO] [1791215773.685105367] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[controller_server-9] [INFO] [1791215773.733339367] [controller_server]: Destroying bond (controller_server) to lifecycle manager.
+[map_server-7] [INFO] [1791215773.759789533] [map_server]: Destroying
+[waypoint_follower-14] [INFO] [1791215773.759828450] [waypoint_follower]: Destroying
+[smoother_server-10] [INFO] [1791215773.787183044] [smoother_server]: Destroying
+[lifecycle_manager-8] [INFO] [1791215773.817863720] [lifecycle_manager_map_server]: Destroying lifecycle_manager_map_server
+[ground_truth_tf_publisher-4] Traceback (most recent call last):
+[ground_truth_tf_publisher-4]   File "/home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/install/mower_sim/lib/mower_sim/ground_truth_tf_publisher", line 33, in <module>
+[ground_truth_tf_publisher-4]     sys.exit(load_entry_point('mower-sim==0.0.0', 'console_scripts', 'ground_truth_tf_publisher')())
+[ground_truth_tf_publisher-4]   File "/home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/install/mower_sim/lib/python3.10/site-packages/mower_sim/ground_truth_tf_publisher.py", line 169, in main
+[ground_truth_tf_publisher-4]     node.destroy_node()
+[ground_truth_tf_publisher-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 1685, in destroy_node
+[ground_truth_tf_publisher-4]     self.destroy_publisher(self._publishers[0])
+[ground_truth_tf_publisher-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 1565, in destroy_publisher
+[ground_truth_tf_publisher-4]     publisher.destroy()
+[ground_truth_tf_publisher-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/publisher.py", line 99, in destroy
+[ground_truth_tf_publisher-4]     self.__publisher.destroy_when_not_in_use()
+[ground_truth_tf_publisher-4] KeyboardInterrupt
+[bt_navigator-13] [INFO] [1791215773.821081000] [bt_navigator]: Completed Cleaning up
+[bt_navigator-13] [INFO] [1791215773.821123599] [bt_navigator]: Destroying bond (bt_navigator) to lifecycle manager.
+[bt_navigator-13] [INFO] [1791215773.822135324] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[controller_server-9] [INFO] [1791215773.823583749] [controller_server]: Cleaning up
+[controller_server-9] [INFO] [1791215773.823660816] [MPPIController]: Cleaned up MPPI Controller: MPPI
+[controller_server-9] [INFO] [1791215773.823665007] [controller_server]: Cleaning up controller: RPP of type regulated_pure_pursuit_controller::RegulatedPurePursuitController
+[controller_server-9] [INFO] [1791215773.823758809] [local_costmap.local_costmap]: Cleaning up
+[behavior_server-12] [INFO] [1791215773.841303488] [behavior_server]: Destroying
+[bt_navigator-13] [INFO] [1791215773.856038867] [bt_navigator]: Destroying
+[controller_server-9] [INFO] [1791215773.856643647] [controller_server]: Destroying bond (controller_server) to lifecycle manager.
+[velocity_smoother-15] [INFO] [1791215773.858066092] [velocity_smoother]: Destroying
+[controller_server-9] [INFO] [1791215773.858832072] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_trail_publisher-5] Traceback (most recent call last):
+[robot_trail_publisher-5]   File "/home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/install/mower_sim/lib/mower_sim/robot_trail_publisher", line 33, in <module>
+[robot_trail_publisher-5]     sys.exit(load_entry_point('mower-sim==0.0.0', 'console_scripts', 'robot_trail_publisher')())
+[robot_trail_publisher-5]   File "/home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/install/mower_sim/lib/python3.10/site-packages/mower_sim/robot_trail_publisher.py", line 98, in main
+[robot_trail_publisher-5]     node.destroy_node()
+[robot_trail_publisher-5]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 1696, in destroy_node
+[robot_trail_publisher-5]     self.__node.destroy_when_not_in_use()
+[robot_trail_publisher-5] KeyboardInterrupt
+[INFO] [robot_state_publisher-2]: process has finished cleanly [pid 7514]
+[lifecycle_manager-16] [INFO] [1791215773.880982185] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ERROR] [coverage_monitor-6]: process has died [pid 7522, exit code -2, cmd '/home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/install/mower_sim/lib/mower_sim/coverage_monitor --ros-args --params-file /tmp/launch_params_mlch30j6'].
+[ERROR] [robot_trail_publisher-5]: process has died [pid 7520, exit code -2, cmd '/home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/install/mower_sim/lib/mower_sim/robot_trail_publisher --ros-args --params-file /tmp/launch_params_bdu9kr2j'].
+[controller_server-9] [INFO] [1791215773.934919246] [local_costmap.local_costmap]: Destroying
+[controller_server-9] [INFO] [1791215773.958071587] [controller_server]: Destroying
+[INFO] [lifecycle_manager-8]: process has finished cleanly [pid 7916]
+[INFO] [behavior_server-12]: process has finished cleanly [pid 7924]
+[INFO] [map_server-7]: process has finished cleanly [pid 7914]
+[INFO] [waypoint_follower-14]: process has finished cleanly [pid 7928]
+[INFO] [smoother_server-10]: process has finished cleanly [pid 7920]
+[ERROR] [ground_truth_tf_publisher-4]: process has died [pid 7518, exit code -2, cmd '/home/nermin/Documents/Thesis/code/Autonomous-Lawn-Mower-Navigation/install/mower_sim/lib/mower_sim/ground_truth_tf_publisher --ros-args --params-file /tmp/launch_params_eze90rct'].
+[lifecycle_manager-16] [INFO] [1791215774.025480749] [lifecycle_manager_navigation]: Destroying lifecycle_manager_navigation
+[INFO] [velocity_smoother-15]: process has finished cleanly [pid 7930]
+[INFO] [bt_navigator-13]: process has finished cleanly [pid 7926]
+[INFO] [gzserver-1]: process has finished cleanly [pid 7512]
+[gzserver-1] [0m[1;32m[0m[1;32m[0m[1;36m[0m[1;32m[0m
+[gzserver-1] [1;33m[0m[1;31m[0m
+[INFO] [controller_server-9]: process has finished cleanly [pid 7918]
+[INFO] [lifecycle_manager-16]: process has finished cleanly [pid 7932]
+[planner_server-11] [INFO] [1791215774.388340045] [planner_server]: Deactivating plugin GridBased of type NavfnPlanner
+[planner_server-11] [INFO] [1791215774.388457391] [planner_server]: Destroying bond (planner_server) to lifecycle manager.
+[planner_server-11] [INFO] [1791215774.398878815] [planner_server]: Cleaning up
+[planner_server-11] [INFO] [1791215774.403597836] [global_costmap.global_costmap]: Cleaning up
+[planner_server-11] [INFO] [1791215774.405680466] [planner_server]: Cleaning up plugin GridBased of type NavfnPlanner
+[planner_server-11] [INFO] [1791215774.406048491] [planner_server]: Destroying plugin GridBased of type NavfnPlanner
+[planner_server-11] [INFO] [1791215774.407938871] [planner_server]: Destroying bond (planner_server) to lifecycle manager.
+[planner_server-11] [INFO] [1791215774.408643458] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[planner_server-11] [INFO] [1791215774.410370881] [global_costmap.global_costmap]: Destroying
+[planner_server-11] [INFO] [1791215774.410863570] [planner_server]: Destroying
+[INFO] [planner_server-11]: process has finished cleanly [pid 7922]

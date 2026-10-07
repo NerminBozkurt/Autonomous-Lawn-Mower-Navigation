@@ -323,6 +323,21 @@
       <joint_name>left_wheel_joint</joint_name>
       <joint_name>right_wheel_joint</joint_name>
     </plugin>
+
+    <!-- True pose stamped with the physics time it belongs to, unlike
+         /gazebo/model_states, which has no stamp. robot_trail_publisher
+         compares it with the odometry estimate (same time base, from
+         /joint_states) to measure the odometry drift. -->
+    <plugin name="ground_truth_odom" filename="libgazebo_ros_p3d.so">
+      <ros>
+        <namespace>/</namespace>
+        <remapping>odom:=ground_truth/odom</remapping>
+      </ros>
+      <update_rate>50.0</update_rate>
+      <body_name>base_footprint</body_name>
+      <frame_name>world</frame_name>
+      <gaussian_noise>0.0</gaussian_noise>
+    </plugin>
   </gazebo>
 
 </robot>

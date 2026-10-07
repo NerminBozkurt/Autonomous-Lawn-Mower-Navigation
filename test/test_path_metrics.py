@@ -136,3 +136,40 @@ def test_missing_a_swath_drops_a_third(ref):
 def test_path_length(ref):
     assert pm.path_length(ref) == pytest.approx(
         15.0 + 2 * math.pi * CUTTING_WIDTH / 2.0, rel=1e-3)
+
+
+def test_transition_stats_window_and_steps():
+    # Robot at 1 m/s along s; boundary at s = 5 m, crossed at t = 5 s.
+    times = [0.1 * i for i in range(100)]
+    arc = list(times)
+    cte = [0.3 if 4.5 <= t <= 7.0 else 0.01 for t in times]
+    cte[10] = 0.9   # far outside the window, must be ignored
+    nav = [(0.1 * i, 1.0, 0.0) for i in range(100)]
+    nav[55] = (5.5, 1.0, 0.8)   # a 0.8 rad/s step right after the boundary
+    out = pm.transition_stats(times, arc, cte, [5.0], nav)
+    assert out['boundaries'] == 1
+    assert out['trans_cte_max'] == pytest.approx(0.3)
+    assert out['trans_nav_dw_max'] == pytest.approx(0.8)
+    assert out['trans_nav_dv_max'] == pytest.approx(0.0)
+
+
+def test_transition_stats_skips_boundaries_never_reached():
+    times = [0.1 * i for i in range(30)]
+    out = pm.transition_stats(times, times, [0.0] * 30, [1.0, 50.0], [])
+    assert out['boundaries'] == 1
+    assert math.isnan(out['trans_nav_dw_max'])
+
+
+def test_switch_stats():
+    nav = [(0.1 * i, 1.0, 0.0, 'RPP') for i in range(20)]
+    nav += [(2.0 + 0.1 * i, 0.1 * i, 0.05 * i, 'MPPI') for i in range(20)]
+    out = pm.switch_stats(nav)
+    assert out['switches'] == 1
+    assert out['switch_dv_max'] == pytest.approx(1.0)     # 1.0 -> 0.0
+    assert out['switch_dw_max'] == pytest.approx(0.05)
+
+
+def test_switch_stats_without_switches():
+    out = pm.switch_stats([(0.1 * i, 1.0, 0.0, 'RPP') for i in range(20)])
+    assert out['switches'] == 0
+    assert math.isnan(out['switch_dv_max'])
